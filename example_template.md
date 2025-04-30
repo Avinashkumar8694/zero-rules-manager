@@ -1,16 +1,23 @@
 # Example Excel Template
 
-Here's how to structure your Excel file for the Rules Manager:
+Here's how to structure your Excel file for the Rules Manager. The system supports both named ranges and traditional row-based formats.
 
-## Template Structure
+## Using Named Ranges (Recommended)
 
-| Parameter_Name | Parameter_Type | Data_Type | Value | Formula |
-|---------------|---------------|-----------|--------|----------|
-| IP_Amount     | Input         | number    | 100    |          |
-| IP_Rate       | Input         | number    | 0.1    |          |
-| IP_Years      | Input         | number    | 5      |          |
-| OP_Interest   | Output        | number    |        | =IP_Amount*IP_Rate |
-| OP_Total      | Output        | number    |        | =IP_Amount+OP_Interest*IP_Years |
+1. Create named ranges in Excel with specific prefixes:
+   - Use `IP_` prefix for input cells (e.g., `IP_Amount`, `IP_Rate`)
+   - Use `OP_` prefix for output cells (e.g., `OP_Total`, `OP_Interest`)
+
+2. Define your formulas using the named ranges:
+   ```
+   IP_Amount = A1    (cell contains numeric value)
+   IP_Rate = B1      (cell contains numeric value)
+   IP_Years = C1     (cell contains numeric value)
+   OP_Interest = D1  (cell contains formula =IP_Amount*IP_Rate)
+   OP_Total = E1     (cell contains formula =IP_Amount+OP_Interest*IP_Years)
+   ```
+
+## Alternative: Row-Based Format
 
 ## How to Use
 

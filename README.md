@@ -1,16 +1,18 @@
 # Rules Manager
 
-A powerful rules management system that allows users to define business rules through Excel/CSV files and expose them as APIs. The system supports version control, rule categorization, and dynamic rule execution through RESTful endpoints.
+A powerful rules management system that allows users to define business rules through Excel files using named ranges and expose them as APIs. The system supports version control, rule categorization, and dynamic rule execution through RESTful endpoints.
 
 ## Features
 
-- **Rule Categories**: Organize rules into logical categories
-- **Version Control**: Maintain multiple versions of rules within each category
-- **Excel/CSV Upload**: Upload rules defined in spreadsheets
-- **Excel Formula Support**: Process Excel formulas for rule calculations
-- **API Endpoints**: Access rules through RESTful APIs
-- **Version Management**: Enable/disable specific rule versions
-- **Input/Output Mapping**: Define inputs (IP_*) and outputs (OP_*) in spreadsheets
+- **Rule Categories**: Organize rules into logical categories for better management
+- **Version Control**: Maintain multiple versions of rules within each category with active/inactive status
+- **Excel File Support**: Upload rules defined in Excel spreadsheets using named ranges
+- **Named Range Processing**: Support for IP_ (input) and OP_ (output) prefixed named ranges
+- **Excel Formula Support**: Process Excel formulas for complex rule calculations
+- **Flexible Parameter Format**: Support for both named ranges and traditional row-based format
+- **API Endpoints**: Access rules through RESTful APIs with version control
+- **Dynamic Rule Execution**: Execute rules with custom input parameters
+- **Version Management**: Enable/disable specific rule versions for controlled deployment
 
 ## Tech Stack
 

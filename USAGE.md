@@ -83,6 +83,31 @@ DB_DATABASE=rules_manager
 }
 ```
 
+#### Update a Category
+- **Endpoint**: `PUT /api/categories/:categoryId`
+- **Content-Type**: `application/json`
+- **Request Body**:
+```json
+{
+  "name": "Updated Rules",
+  "description": "Updated description"
+}
+```
+- **Response** (200 OK):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Updated Rules",
+  "description": "Updated description",
+  "createdAt": "2024-01-20T12:00:00Z",
+  "updatedAt": "2024-01-20T13:30:00Z"
+}
+```
+
+#### Delete a Category
+- **Endpoint**: `DELETE /api/categories/:categoryId`
+- **Response** (204 No Content)
+
 ### Rule Versions
 
 #### Upload a Rule Version
@@ -125,6 +150,21 @@ DB_DATABASE=rules_manager
 }
 ```
 
+#### Get Specific Version
+- **Endpoint**: `GET /api/categories/:categoryId/versions/:versionId`
+- **Response** (200 OK):
+```json
+{
+  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
+  "version": "1.0.0",
+  "isActive": true,
+  "inputColumns": ["IP_A1", "IP_A2"],
+  "outputColumns": ["OP_SUM", "OP_PRODUCT"],
+  "createdAt": "2024-01-20T12:30:00Z",
+  "updatedAt": "2024-01-20T12:30:00Z"
+}
+```
+
 #### Toggle Version Status
 - **Endpoint**: `PATCH /api/categories/:categoryId/versions/:versionId`
 - **Content-Type**: `application/json`
@@ -143,9 +183,13 @@ DB_DATABASE=rules_manager
 }
 ```
 
+#### Delete a Version
+- **Endpoint**: `DELETE /api/categories/:categoryId/versions/:versionId`
+- **Response** (204 No Content)
+
 ### Rule Execution
 
-#### Execute Rules
+#### Execute Latest Active Version
 - **Endpoint**: `POST /api/execute/:categoryId`
 - **Content-Type**: `application/json`
 - **Request Body**:
@@ -158,8 +202,52 @@ DB_DATABASE=rules_manager
 - **Response** (200 OK):
 ```json
 {
-  "OP_SUM": 50,
-  "OP_PRODUCT": 600
+  "version": "1.0.0",
+  "results": {
+    "OP_SUM": 50,
+    "OP_PRODUCT": 600
+  }
+}
+```
+
+#### Execute Specific Version
+- **Endpoint**: `POST /api/execute/:categoryId/versions/:versionId`
+- **Content-Type**: `application/json`
+- **Request Body**:
+```json
+{
+  "IP_A1": 15,
+  "IP_A2": 25
+}
+```
+- **Response** (200 OK):
+```json
+{
+  "version": "1.0.0",
+  "results": {
+    "OP_SUM": 40,
+    "OP_PRODUCT": 375
+  }
+}
+```
+
+#### Error Responses
+- **400 Bad Request**: Invalid input data
+```json
+{
+  "error": "Invalid input: Missing required field 'IP_A1'"
+}
+```
+- **404 Not Found**: Category or version not found
+```json
+{
+  "error": "Category not found"
+}
+```
+- **422 Unprocessable Entity**: Rule execution error
+```json
+{
+  "error": "Error executing rules: Invalid formula in cell C2"
 }
 ```
 
