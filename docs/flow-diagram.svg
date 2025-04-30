@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Styles -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Arial, sans-serif; }
+    .title { font-size: 24px; font-weight: bold; }
+    .subtitle { font-size: 16px; }
+    .process { fill: #fff; stroke: #333; stroke-width: 2; }
+    .data { fill: #e3f2fd; stroke: #333; stroke-width: 2; }
+    .flow-line { stroke: #333; stroke-width: 2; marker-end: url(#arrowhead); }
+    .label { font-size: 14px; }
+  </style>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" class="title">Rules Manager System Flow</text>
+
+  <!-- Excel File Input -->
+  <rect x="100" y="100" width="200" height="80" class="data" rx="5"/>
+  <text x="200" y="145" text-anchor="middle" class="label">Excel File
+    <tspan x="200" y="165" class="subtitle">(with IP_ and OP_ cells)</tspan>
+  </text>
+
+  <!-- Excel Service Processing -->
+  <rect x="400" y="80" width="240" height="120" class="process" rx="5"/>
+  <text x="520" y="120" text-anchor="middle" class="label">ExcelService
+    <tspan x="520" y="140" class="subtitle">1. Read Named Ranges</tspan>
+    <tspan x="520" y="160" class="subtitle">2. Process IP_/OP_ Cells</tspan>
+    <tspan x="520" y="180" class="subtitle">3. Extract Formulas</tspan>
+  </text>
+
+  <!-- Rule Category -->
+  <rect x="100" y="300" width="200" height="80" class="data" rx="5"/>
+  <text x="200" y="345" text-anchor="middle" class="label">Rule Category
+    <tspan x="200" y="365" class="subtitle">(Categorization)</tspan>
+  </text>
+
+  <!-- Rule Version -->
+  <rect x="400" y="300" width="200" height="80" class="data" rx="5"/>
+  <text x="500" y="345" text-anchor="middle" class="label">Rule Version
+    <tspan x="500" y="365" class="subtitle">(Version Control)</tspan>
+  </text>
+
+  <!-- API Endpoints -->
+  <rect x="700" y="280" width="240" height="120" class="process" rx="5"/>
+  <text x="820" y="320" text-anchor="middle" class="label">API Endpoints
+    <tspan x="820" y="340" class="subtitle">1. Upload Rules</tspan>
+    <tspan x="820" y="360" class="subtitle">2. Execute Rules</tspan>
+    <tspan x="820" y="380" class="subtitle">3. Manage Versions</tspan>
+  </text>
+
+  <!-- Rule Execution -->
+  <rect x="400" y="500" width="240" height="120" class="process" rx="5"/>
+  <text x="520" y="540" text-anchor="middle" class="label">Rule Execution
+    <tspan x="520" y="560" class="subtitle">1. Apply Input Values</tspan>
+    <tspan x="520" y="580" class="subtitle">2. Calculate Formulas</tspan>
+    <tspan x="520" y="600" class="subtitle">3. Extract Outputs</tspan>
+  </text>
+
+  <!-- Result Output -->
+  <rect x="800" y="520" width="200" height="80" class="data" rx="5"/>
+  <text x="900" y="565" text-anchor="middle" class="label">Execution Result
+    <tspan x="900" y="585" class="subtitle">(JSON Response)</tspan>
+  </text>
+
+  <!-- Flow Lines -->
+  <path d="M 300 140 H 400" class="flow-line"/>
+  <path d="M 640 140 C 680 140 680 340 700 340" class="flow-line"/>
+  <path d="M 300 340 H 400" class="flow-line"/>
+  <path d="M 600 340 H 700" class="flow-line"/>
+  <path d="M 820 400 C 820 450 520 450 520 500" class="flow-line"/>
+  <path d="M 640 560 H 800" class="flow-line"/>
+
+  <!-- Explanatory Text -->
+  <text x="600" y="700" text-anchor="middle" class="subtitle">
+    The Rules Manager processes Excel files with named ranges and special prefixes (IP_/OP_),
+    <tspan x="600" y="720">manages versions and categories, and exposes rule execution through REST APIs.</tspan>
+    <tspan x="600" y="740">The system supports dynamic rule execution with input parameters and formula calculation.</tspan>
+  </text>
+</svg>
