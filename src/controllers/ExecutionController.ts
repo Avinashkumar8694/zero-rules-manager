@@ -1,11 +1,23 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../config/ormconfig';
+import { DatabaseService } from '../services/DatabaseService';
 import { RuleVersion } from '../models/RuleVersion';
 import { ExcelService } from '../services/ExcelService';
 
 export class ExecutionController {
-  private versionRepository = AppDataSource.getRepository(RuleVersion);
+  private versionRepository: any;
   private excelService = new ExcelService();
+
+  private async initialize() {
+    const dbService = DatabaseService.getInstance();
+    this.versionRepository = dbService.getDataSource().getRepository(RuleVersion);
+  }
+
+  constructor() {
+    this.initialize().catch(error => {
+      console.error('ExecutionController initialization failed:', error);
+      process.exit(1);
+    });
+  }
 
   async execute(req: Request, res: Response) {
     try {

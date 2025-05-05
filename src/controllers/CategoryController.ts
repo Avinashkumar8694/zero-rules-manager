@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../config/ormconfig';
+import { DatabaseService } from '../services/DatabaseService';
 import { RuleCategory } from '../models/RuleCategory';
 import { RuleVersion } from '../models/RuleVersion';
 import multer from 'multer';
@@ -18,18 +18,69 @@ const storage = multer.diskStorage({
 const upload = multer({ storage }).single('file');
 
 export class CategoryController {
-  private categoryRepository = AppDataSource.getRepository(RuleCategory);
-  private versionRepository = AppDataSource.getRepository(RuleVersion);
+  private categoryRepository: any;
+  private versionRepository: any;
   private excelService = new ExcelService();
+
+  private async ensureInitialized() {
+    if (!this.categoryRepository) {
+      await this.initialize();
+    }
+  }
+
+  private async initialize() {
+    try {
+      if (!DatabaseService.getInstance().getDataSource().isInitialized) {
+        await DatabaseService.initializeDatabase();
+      }
+      const dataSource = DatabaseService.getInstance().getDataSource();
+      this.categoryRepository = dataSource.getRepository(RuleCategory);
+      this.versionRepository = dataSource.getRepository(RuleVersion);
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      throw new Error('Failed to initialize database connection');
+    }
+  }
+
+  constructor() {
+    // Bind methods to ensure correct 'this' context
+    this.create = this.create.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.getById = this.getById.bind(this);
+    
+    // Initialize database connection
+    this.initialize().catch(error => {
+      console.error('CategoryController initialization failed:', error);
+    });
+  }
 
   async create(req: Request, res: Response) {
     try {
+      await this.ensureInitialized();
       const { name, description } = req.body;
-      const category = this.categoryRepository.create({ name, description });
+      
+      if (!name) {
+        return res.status(400).json({ error: 'Category name is required' });
+      }
+
+      const existingCategory = await this.categoryRepository.findOne({ where: { name } });
+      if (existingCategory) {
+        return res.status(409).json({ error: 'Category name already exists' });
+      }
+
+      const category = this.categoryRepository.create({ 
+        name: name.trim(), 
+        description: description?.trim() 
+      });
+      
       await this.categoryRepository.save(category);
       return res.status(201).json(category);
-    } catch (error) {
-      return res.status(500).json({ error: 'Failed to create category' });
+    } catch (error:any) {
+      console.error('Category creation error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to create category', 
+        details: error.message 
+      });
     }
   }
 
@@ -81,14 +132,14 @@ export class CategoryController {
           return res.status(400).json({ error: 'No file provided' });
         }
 
-        const { inputColumns, outputColumns } = await this.excelService.processExcelFile(file.path);
+        const { inputs, outputs } = await this.excelService.processExcelFile(file.path);
 
         const version = this.versionRepository.create({
           categoryId: req.params.id,
           version: new Date().toISOString(),
           filePath: file.path,
-          inputColumns,
-          outputColumns,
+          inputColumns: inputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
+          outputColumns: outputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
           isActive: false
         });
 

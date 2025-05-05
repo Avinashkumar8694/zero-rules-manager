@@ -273,6 +273,7 @@ Example Excel file format:
 ```bash
 curl -X POST http://localhost:3000/api/categories \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
   -d '{"name": "Calculation Rules", "description": "Basic arithmetic operations"}'
 ```
 
@@ -285,13 +286,16 @@ curl -X POST http://localhost:3000/api/categories \
 3. Upload the rule version:
 ```bash
 curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions \
-  -F "file=@rules.xlsx"
+  -H "Accept: application/json" \
+  -F "file=@rules.xlsx" \
+  -F "version=1.0.0"
 ```
 
 4. Execute the rules:
 ```bash
 curl -X POST http://localhost:3000/api/execute/550e8400-e29b-41d4-a716-446655440000 \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
   -d '{"IP_A1": 20, "IP_A2": 30}'
 ```
 

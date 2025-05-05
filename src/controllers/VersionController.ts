@@ -1,12 +1,32 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../config/ormconfig';
+import { DatabaseService } from '../services/DatabaseService';
 import { RuleVersion } from '../models/RuleVersion';
+import { Not } from 'typeorm';
 
 export class VersionController {
-  private versionRepository = AppDataSource.getRepository(RuleVersion);
+  private versionRepository: any;
+
+  private async initialize() {
+    const dbService = DatabaseService.getInstance();
+    this.versionRepository = dbService.getDataSource().getRepository(RuleVersion);
+  }
+
+  constructor() {
+    this.initialize().catch(error => {
+      console.error('VersionController initialization failed:', error);
+      process.exit(1);
+    });
+  }
+
+  private async ensureInitialized() {
+    if (!this.versionRepository) {
+      await this.initialize();
+    }
+  }
 
   async updateStatus(req: Request, res: Response) {
     try {
+      await this.ensureInitialized();
       const { isActive } = req.body;
       const version = await this.versionRepository.findOne({
         where: { id: req.params.id }
@@ -34,6 +54,7 @@ export class VersionController {
 
   async getById(req: Request, res: Response) {
     try {
+      await this.ensureInitialized();
       const version = await this.versionRepository.findOne({
         where: { id: req.params.id },
         relations: ['category']
@@ -51,6 +72,7 @@ export class VersionController {
 
   async delete(req: Request, res: Response) {
     try {
+      await this.ensureInitialized();
       const version = await this.versionRepository.findOne({
         where: { id: req.params.id }
       });

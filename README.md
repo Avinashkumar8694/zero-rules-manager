@@ -64,11 +64,18 @@ A powerful rules management system that allows users to define business rules th
 - `POST /api/categories` - Create a new rule category
 - `GET /api/categories` - List all rule categories
 - `GET /api/categories/:id` - Get category details
+- `PATCH /api/categories/:id` - Update category details
+- `DELETE /api/categories/:id` - Delete a category
 
 ### Rule Versions
 - `POST /api/categories/:id/versions` - Upload new rule version
 - `GET /api/categories/:id/versions` - List versions for a category
 - `PATCH /api/versions/:id` - Update version status (enable/disable)
+- `DELETE /api/versions/:id` - Delete a version
+- `GET /api/versions/:id` - Get version details
+- `POST /api/versions/:id/execute` - Execute a version with custom parameters
+- `GET /api/versions/:id/execute` - Get execution history for a version
+
 
 ### Rule Execution
 - `POST /api/execute/:categoryId` - Execute rules for a category
@@ -96,28 +103,6 @@ A powerful rules management system that allows users to define business rules th
 5. Start the development server:
    ```bash
    npm run dev
-   ```
-
-## Usage Example
-
-1. Create a rule category:
-   ```bash
-   curl -X POST http://localhost:3000/api/categories \
-     -H "Content-Type: application/json" \
-     -d '{"name": "Calculation Rules", "description": "Basic arithmetic operations"}'
-   ```
-
-2. Upload a rule version (Excel file):
-   ```bash
-   curl -X POST http://localhost:3000/api/categories/:categoryId/versions \
-     -F "file=@rules.xlsx"
-   ```
-
-3. Execute rules:
-   ```bash
-   curl -X POST http://localhost:3000/api/execute/:categoryId \
-     -H "Content-Type: application/json" \
-     -d '{"IP_A1": 20, "IP_A2": 30}'
    ```
 
 ## License

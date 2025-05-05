@@ -1,10 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
-import { AppDataSource } from './config/ormconfig';
-import categoryRoutes from './routes/categoryRoutes';
-import versionRoutes from './routes/versionRoutes';
-import executionRoutes from './routes/executionRoutes';
-import versionExecutionRoutes from './routes/versionExecutionRoutes';
+import { DatabaseService } from './services/DatabaseService';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,23 +9,34 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 // Routes
-app.use('/api/categories', categoryRoutes);
-app.use('/api/versions', versionRoutes);
-app.use('/api/execute', executionRoutes);
-app.use('/api', versionExecutionRoutes);
 
-// Initialize database connection
-AppDataSource.initialize()
-  .then(() => {
-    console.log('Database connection established');
-    
+// Initialize application
+const initializeApp = async () => {
+  try {
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+
+    // Dynamically import routes after DB initialization
+    const { default: categoryRoutes } = await import('./routes/categoryRoutes');
+    const { default: versionRoutes } = await import('./routes/versionRoutes');
+    const { default: executionRoutes } = await import('./routes/executionRoutes');
+    const { default: versionExecutionRoutes } = await import('./routes/versionExecutionRoutes');
+
+    app.use('/api/categories', categoryRoutes);
+    app.use('/api/versions', versionRoutes);
+    app.use('/api/execute', executionRoutes);
+    app.use('/api', versionExecutionRoutes);
+
     // Start server
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
-  })
-  .catch((error) => {
-    console.error('Error connecting to database:', error);
-  });
+  } catch (error) {
+    console.error('Error initializing application:', error);
+    process.exit(1);
+  }
+};
+
+initializeApp();
 
 export default app;
