@@ -1,4 +1,5 @@
 import * as xlsx from 'xlsx';
+import XlsxCalc from 'xlsx-calc';
 
 interface Parameter {
   name: string;
@@ -80,24 +81,7 @@ export class ExcelService {
         }
       }
 
-      // Also process traditional row-based format for backward compatibility
-      const data = xlsx.utils.sheet_to_json(worksheet);
-      data.forEach((row: any) => {
-        if (row.Parameter_Name && row.Parameter_Type) {
-          const parameter: Parameter = {
-            name: row.Parameter_Name,
-            type: row.Data_Type || typeof row.Value,
-            value: row.Value,
-            formula: row.Formula
-          };
 
-          if (row.Parameter_Type?.toLowerCase() === 'input') {
-            inputs.push(parameter);
-          } else if (row.Parameter_Type?.toLowerCase() === 'output') {
-            outputs.push(parameter);
-          }
-        }
-      });
 
       return { inputs, outputs };
     } catch (error) {
@@ -156,29 +140,18 @@ export class ExcelService {
         }
       }
 
-      // Process traditional row-based format for backward compatibility
-      const data = xlsx.utils.sheet_to_json(worksheet);
-      data.forEach((row: any) => {
-        if (row.Parameter_Type?.toLowerCase() === 'input') {
-          const value = inputValues[row.Parameter_Name] || row.Value;
-          newWorksheet[`A${data.indexOf(row) + 2}`] = {
-            t: typeof value === 'number' ? 'n' : 's',
-            v: value
-          };
-        } else if (row.Parameter_Type?.toLowerCase() === 'output' && row.Formula) {
-          newWorksheet[`A${data.indexOf(row) + 2}`] = {
-            t: 'n',
-            f: row.Formula
-          };
-        }
-      });
+
 
       // Create a new workbook with the calculation sheet
       const newWorkbook = xlsx.utils.book_new();
       xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'Sheet1');
 
-      // Calculate formulas
-      xlsx.utils.sheet_add_aoa(newWorksheet, [[]], { origin: 'A1' });
+      // Calculate formulas using xlsx-calc
+      try {
+        XlsxCalc(newWorkbook);
+      } catch (error) {
+        console.warn('Failed to calculate formulas:', error);
+      }
       
       // Extract output values
       const outputs: Record<string, any> = {};
@@ -214,15 +187,7 @@ export class ExcelService {
         }
       }
 
-      // Finally process traditional format outputs
-      const outputData = xlsx.utils.sheet_to_json(worksheet);
-      outputData.forEach((row: any) => {
-        if (row.Parameter_Type?.toLowerCase() === 'output' && row.Parameter_Name) {
-          if (!(row.Parameter_Name in outputs)) { // Only add if not already processed
-            outputs[row.Parameter_Name] = newWorksheet[`A${outputData.indexOf(row) + 2}`]?.v;
-          }
-        }
-      });
+
 
       return outputs;
     } catch (error) {

@@ -99,6 +99,12 @@ export class ExecutionController {
 
   private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response) {
     try {
+      // Transform input parameters to include IP_ prefix
+      const prefixedInputs: Record<string, any> = {};
+      // Object.entries(inputs).forEach(([key, value]) => {
+      //   prefixedInputs[`IP_${key}`] = value;
+      // });
+
       // Validate input parameters against version schema
       const requiredInputs = version.inputColumns || {};
       const missingInputs = Object.keys(requiredInputs).filter(key => !(key in inputs));
@@ -110,7 +116,7 @@ export class ExecutionController {
         });
       }
 
-      // Execute rules using Excel service
+      // Execute rules using Excel service with prefixed inputs
       const results = await this.excelService.executeRules(version.filePath, inputs);
 
       return res.json({

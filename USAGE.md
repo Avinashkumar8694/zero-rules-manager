@@ -186,22 +186,36 @@ Response (200 OK):
 
 #### Update Version
 ```bash
-curl -X PUT http://localhost:3000/api/versions/7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "version": "1.0.1",
-    "isActive": true
-  }'
+curl --location --request PUT 'http://localhost:3000/api/versions/5e3d118b-062b-4a9d-b98b-994b7b1d4d12' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--form 'file=@"/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"'
 ```
 
 Response (200 OK):
 ```json
 {
-  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
-  "version": "1.0.1",
-  "isActive": true,
-  "updatedAt": "2024-01-20T14:00:00Z"
+    "id": "5e3d118b-062b-4a9d-b98b-994b7b1d4d12",
+    "categoryId": "679bca33-df52-4798-b84e-2fe4d936b9db",
+    "version": "1.2.0",
+    "isActive": false,
+    "filePath": "uploads\\4c60041d-d941-4566-be59-5faf5709471f.xlsx",
+    "inputColumns": {
+        "policy_premium": {
+            "name": "policy_premium",
+            "type": "number",
+            "value": 1118.63
+        }
+    },
+    "outputColumns": {
+        "total_premium": {
+            "name": "total_premium",
+            "type": "number",
+            "formula": "K4+(K4)*0.15"
+        }
+    },
+    "createdAt": "2025-05-06T02:27:07.288Z",
+    "updatedAt": "2025-05-06T08:54:48.583Z"
 }
 ```
 
@@ -225,9 +239,31 @@ curl -X PATCH http://localhost:3000/api/versions/7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7
 Response (200 OK):
 ```json
 {
-  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
-  "isActive": false,
-  "updatedAt": "2024-01-20T13:45:00Z"
+    "versions": [
+        {
+            "id": "be3ed138-dc73-4bcc-bbb5-570ff3e46f91",
+            "categoryId": "679bca33-df52-4798-b84e-2fe4d936b9db",
+            "version": "1.0.0",
+            "isActive": true,
+            "filePath": "uploads\\05c003e3-59fc-4224-bb8d-0879909bda79.xlsx",
+            "inputColumns": {
+                "policy_premium": {
+                    "name": "policy_premium",
+                    "type": "number",
+                    "value": 1118.63
+                }
+            },
+            "outputColumns": {
+                "total_premium": {
+                    "name": "total_premium",
+                    "type": "number",
+                    "formula": "K4+(K4)*0.15"
+                }
+            },
+            "createdAt": "2025-05-06T03:47:02.967Z",
+            "updatedAt": "2025-05-06T03:49:56.022Z"
+        }
+    ]
 }
 ```
 
@@ -235,81 +271,63 @@ Response (200 OK):
 
 #### Execute Latest Version
 ```bash
-curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/latest/execute \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "inputs": {
-      "IP_A1": 10,
-      "IP_A2": 5
-    }
+curl --location 'http://localhost:3000/api/categories/679bca33-df52-4798-b84e-2fe4d936b9db/latest/execute' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data '{
+    "policy_premium": 10000
   }'
 ```
 
 Response (200 OK):
 ```json
 {
-  "outputs": {
-    "OP_SUM": 15,
-    "OP_PRODUCT": 50
-  },
-  "executedVersion": "1.0.1",
-  "executedAt": "2024-01-20T14:15:00Z"
+    "version": "1.0.0",
+    "results": {
+        "total_premium": 1458.3495
+    }
 }
 ```
 
 #### Execute Specific Version
 ```bash
-curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions/7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000/execute \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "inputs": {
-      "IP_A1": 10,
-      "IP_A2": 5
-    }
+curl --location 'http://localhost:3000/api/categories/679bca33-df52-4798-b84e-2fe4d936b9db/versions/be3ed138-dc73-4bcc-bbb5-570ff3e46f91/execute' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data '{
+    "policy_premium": 100
   }'
 ```
 
 Response (200 OK):
 ```json
 {
-  "outputs": {
-    "OP_SUM": 15,
-    "OP_PRODUCT": 50
-  },
-  "executedVersion": "1.0.0",
-  "executedAt": "2024-01-20T14:15:00Z"
+    "version": "1.0.0",
+    "results": {
+        "total_premium": 286.925
+    }
 }
 ```
 
 #### Execute Rules by Category
 ```bash
-curl -X POST http://localhost:3000/api/execute/550e8400-e29b-41d4-a716-446655440000 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "inputs": {
-      "IP_A1": 10,
-      "IP_A2": 5
-    }
+curl --location 'http://localhost:3000/api/execute/679bca33-df52-4798-b84e-2fe4d936b9db' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data '{
+    "policy_premium": 100
   }'
 ```
 
 Response (200 OK):
 ```json
 {
-  "outputs": {
-    "OP_SUM": 15,
-    "OP_PRODUCT": 50
-  },
-  "executedVersion": "1.0.1",
-  "executedAt": "2024-01-20T14:15:00Z"
+    "version": "1.0.0",
+    "results": {
+        "total_premium": 286.925
+    }
 }
-```
-  "isActive": false,
-  "updatedAt": "2024-01-20T13:00:00Z"
-}
+
 ```
 
 #### Delete a Version
@@ -321,49 +339,6 @@ Response: 204 No Content
 
 ### Rule Execution
 
-#### Execute Latest Active Version
-```bash
-curl -X POST http://localhost:3000/api/execute/550e8400-e29b-41d4-a716-446655440000 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "IP_A1": 20,
-    "IP_A2": 30
-  }'
-```
-
-Response (200 OK):
-```json
-{
-  "version": "1.0.0",
-  "results": {
-    "OP_SUM": 50,
-    "OP_PRODUCT": 600
-  }
-}
-```
-
-#### Execute Specific Version
-```bash
-curl -X POST http://localhost:3000/api/execute/550e8400-e29b-41d4-a716-446655440000/versions/7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "IP_A1": 15,
-    "IP_A2": 25
-  }'
-```
-
-Response (200 OK):
-```json
-{
-  "version": "1.0.0",
-  "results": {
-    "OP_SUM": 40,
-    "OP_PRODUCT": 375
-  }
-}
-```
 
 #### Error Responses
 
