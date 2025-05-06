@@ -19,4 +19,10 @@ router.get('/:id/versions', categoryController.getVersions);
 // Upload a new version for a specific category
 router.post('/:id/versions', categoryController.uploadVersion);
 
+// Update a category
+router.put('/:id', categoryController.update);
+
+// Delete a category
+router.delete('/:id', categoryController.delete);
+
 export default router;

@@ -13,4 +13,7 @@ router.get('/:id', versionController.getById);
 // Delete version
 router.delete('/:id', versionController.delete);
 
+// Update version with new Excel file
+router.put('/:id', versionController.update);
+
 export default router;

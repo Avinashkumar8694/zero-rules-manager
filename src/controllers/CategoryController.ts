@@ -47,6 +47,8 @@ export class CategoryController {
     this.create = this.create.bind(this);
     this.getAll = this.getAll.bind(this);
     this.getById = this.getById.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
     
     // Initialize database connection
     this.initialize().catch(error => {
@@ -117,6 +119,70 @@ export class CategoryController {
       return res.json(versions);
     } catch (error) {
       return res.status(500).json({ error: 'Failed to fetch versions' });
+    }
+  }
+
+  async update(req: Request, res: Response) {
+    try {
+      await this.ensureInitialized();
+      const { id } = req.params;
+      const { name, description } = req.body;
+
+      const category = await this.categoryRepository.findOne({ where: { id } });
+      if (!category) {
+        return res.status(404).json({ error: 'Category not found' });
+      }
+
+      if (name && name !== category.name) {
+        const existingCategory = await this.categoryRepository.findOne({ where: { name: name.trim() } });
+        if (existingCategory) {
+          return res.status(409).json({ error: 'Category name already exists' });
+        }
+        category.name = name.trim();
+      }
+
+      if (description !== undefined) {
+        category.description = description?.trim();
+      }
+
+      await this.categoryRepository.save(category);
+      return res.json(category);
+    } catch (error: any) {
+      console.error('Category update error:', error);
+      return res.status(500).json({
+        error: 'Failed to update category',
+        details: error.message
+      });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      await this.ensureInitialized();
+      const { id } = req.params;
+
+      const category = await this.categoryRepository.findOne({
+        where: { id },
+        relations: ['versions']
+      });
+
+      if (!category) {
+        return res.status(404).json({ error: 'Category not found' });
+      }
+
+      // Delete associated versions first
+      if (category.versions && category.versions.length > 0) {
+        await this.versionRepository.remove(category.versions);
+      }
+
+      await this.categoryRepository.remove(category);
+      return res.status(204).send();
+    } catch (error: any) {
+      console.error('Category deletion error:', error);
+      return res.status(500).json({
+        error: 'Failed to delete category',
+        details: error.message
+      });
     }
   }
 
