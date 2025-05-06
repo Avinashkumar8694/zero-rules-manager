@@ -22,20 +22,31 @@ export class VersionController {
   private excelService: ExcelService;
 
   private async initialize() {
-    const dbService = DatabaseService.getInstance();
-    this.versionRepository = dbService.getDataSource().getRepository(RuleVersion);
+    try {
+      if (!DatabaseService.getInstance().getDataSource().isInitialized) {
+        await DatabaseService.initializeDatabase();
+      }
+      const dataSource = DatabaseService.getInstance().getDataSource();
+      this.versionRepository = dataSource.getRepository(RuleVersion);
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      throw new Error('Failed to initialize database connection');
+    }
   }
 
   constructor() {
-    // Bind methods to ensure correct 'this' context
-    this.updateStatus = this.updateStatus.bind(this);
-    this.getById = this.getById.bind(this);
-    this.delete = this.delete.bind(this);
-    this.update = this.update.bind(this);
+    // Initialize services
     this.excelService = new ExcelService();
+
+    // Bind methods to ensure correct 'this' context
+    // this.updateStatus = this.updateStatus.bind(this);
+    // this.getById = this.getById.bind(this);
+    // this.delete = this.delete.bind(this);
+    // this.update = this.update.bind(this);
+    
+    // Initialize database connection
     this.initialize().catch(error => {
       console.error('VersionController initialization failed:', error);
-      process.exit(1);
     });
   }
 
@@ -138,8 +149,8 @@ export class VersionController {
 
         // Update version with new parameters
         version.filePath = file.path;
-        version.inputs = inputs;
-        version.outputs = outputs;
+        version.inputColumns = inputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {});
+        version.outputColumns = outputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {});
         version.updatedAt = new Date();
 
         await this.versionRepository.save(version);
@@ -152,5 +163,20 @@ export class VersionController {
         });
       }
     });
+  }
+
+  async generateNextVersion(categoryId: string): Promise<string> {
+    const versions = await this.versionRepository.find({
+      where: { categoryId },
+      order: { createdAt: 'DESC' }
+    });
+
+    if (versions.length === 0) {
+      return '1.0.0';
+    }
+
+    const latestVersion = versions[0].version;
+    const [major, minor, patch] = latestVersion.split('.').map(Number);
+    return `${major}.${minor + 1}.0`;
   }
 }

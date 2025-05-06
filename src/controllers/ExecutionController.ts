@@ -21,6 +21,7 @@ export class ExecutionController {
 
   async execute(req: Request, res: Response) {
     try {
+      // await this.ensureInitialized();
       const categoryId = req.params.categoryId;
       const inputs = req.body;
 
@@ -46,6 +47,7 @@ export class ExecutionController {
 
   async executeLatestVersion(req: Request, res: Response) {
     try {
+      // await this.ensureInitialized();
       const categoryId = req.params.categoryId;
       const inputs = req.body;
 

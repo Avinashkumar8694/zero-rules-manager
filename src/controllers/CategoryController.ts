@@ -47,13 +47,13 @@ export class CategoryController {
     this.excelService = new ExcelService();
 
     // Bind methods to ensure correct 'this' context
-    this.create = this.create.bind(this);
-    this.getAll = this.getAll.bind(this);
-    this.getById = this.getById.bind(this);
-    this.update = this.update.bind(this);
-    this.delete = this.delete.bind(this);
-    this.uploadVersion = this.uploadVersion.bind(this);
-    
+    // this.create = this.create.bind(this);
+    // this.getAll = this.getAll.bind(this);
+    // this.getById = this.getById.bind(this);
+    // this.update = this.update.bind(this);
+    // this.delete = this.delete.bind(this);
+    // this.uploadVersion = this.uploadVersion.bind(this);
+    // this.ensureInitialized = this.ensureInitialized.bind(this);
     // Initialize database connection
     this.initialize().catch(error => {
       console.error('CategoryController initialization failed:', error);
@@ -116,13 +116,28 @@ export class CategoryController {
 
   async getVersions(req: Request, res: Response) {
     try {
+      await this.ensureInitialized();
+      
+      const category = await this.categoryRepository.findOne({
+        where: { id: req.params.id }
+      });
+
+      if (!category) {
+        return res.status(404).json({ error: 'Category not found' });
+      }
+
       const versions = await this.versionRepository.find({
         where: { categoryId: req.params.id },
         order: { createdAt: 'DESC' }
       });
-      return res.json(versions);
-    } catch (error) {
-      return res.status(500).json({ error: 'Failed to fetch versions' });
+
+      return res.json({ versions });
+    } catch (error: any) {
+      console.error('Version fetch error:', error);
+      return res.status(500).json({
+        error: 'Failed to fetch versions',
+        details: error.message
+      });
     }
   }
 
@@ -206,7 +221,7 @@ export class CategoryController {
 
         const version = this.versionRepository.create({
           categoryId: req.params.id,
-          version: new Date().toISOString(),
+          version: await this.generateNextVersion(req.params.id),
           filePath: file.path,
           inputColumns: inputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
           outputColumns: outputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
@@ -219,5 +234,23 @@ export class CategoryController {
         return res.status(500).json({ error: 'Failed to process file' });
       }
     });
+  }
+  
+  private async generateNextVersion(categoryId: string, isNewUpload: boolean = true): Promise<string> {
+    const versions = await this.versionRepository.find({
+      where: { categoryId },
+      order: { createdAt: 'DESC' }
+    });
+  
+    if (versions.length === 0) {
+      return '1.0.0';
+    }
+  
+    const latestVersion = versions[0].version;
+    const [major, minor, patch] = latestVersion.split('.').map(Number);
+    
+    // For new uploads, increment major version
+    // For updates, increment minor version
+    return isNewUpload ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
   }
 }
