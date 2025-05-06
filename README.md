@@ -1,18 +1,35 @@
 # Rules Manager
 
-A powerful rules management system that allows users to define business rules through Excel files using named ranges and expose them as APIs. The system supports version control, rule categorization, and dynamic rule execution through RESTful endpoints.
+A powerful business rules engine that transforms Excel-based business logic into RESTful APIs. Define your business rules using Excel's named ranges and formulas, then expose them as versioned API endpoints for seamless integration into your applications.
 
-## Features
+## Key Features
 
-- **Rule Categories**: Organize rules into logical categories for better management
-- **Version Control**: Maintain multiple versions of rules within each category with active/inactive status
-- **Excel File Support**: Upload rules defined in Excel spreadsheets using named ranges
-- **Named Range Processing**: Support for IP_ (input) and OP_ (output) prefixed named ranges
-- **Excel Formula Support**: Process Excel formulas for complex rule calculations
-- **Flexible Parameter Format**: Support for both named ranges and traditional row-based format
-- **API Endpoints**: Access rules through RESTful APIs with version control
-- **Dynamic Rule Execution**: Execute rules with custom input parameters
-- **Version Management**: Enable/disable specific rule versions for controlled deployment
+- **Excel-Based Rule Definition**
+  - Use familiar Excel formulas and functions
+  - Define inputs and outputs using named ranges (IP_ and OP_ prefixes)
+  - Support for complex calculations and conditional logic
+
+- **Robust Version Control**
+  - Maintain multiple versions of rule sets
+  - Active/inactive version management
+  - Rollback capability for rule changes
+
+- **Flexible Rule Organization**
+  - Categorize rules by business domain
+  - Group related rules for better maintainability
+  - Easy navigation and management
+
+- **RESTful API Integration**
+  - Automatic API endpoint generation
+  - JSON request/response format
+  - Comprehensive API documentation
+
+- **Enterprise-Ready Features**
+  - Input validation and error handling
+  - Execution history tracking
+  - Performance optimization for large rule sets
+
+For detailed usage instructions and examples, see [USAGE.md](./USAGE.md).
 
 ## Tech Stack
 

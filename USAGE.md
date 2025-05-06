@@ -379,41 +379,36 @@ Example Excel file format:
 | 10    | 20    | =A2+B2  | =A2*B2     |
 | 5     | 8     | =A3+B3  | =A3*B3     |
 
-## Complete Workflow Example
+## Excel File Format
 
-1. Create a rule category:
+The Rules Manager accepts Excel files with named ranges for inputs and outputs:
+
+1. Input named ranges must be prefixed with `IP_`
+2. Output named ranges must be prefixed with `OP_`
+3. Named ranges can reference single cells or ranges
+4. Excel formulas in output ranges can reference input ranges
+
+Example Excel file structure:
+
+### Sheet: Premium Calculation
+
+| Cell | Named Range | Formula/Value | Description |
+|------|-------------|---------------|-------------|
+| A1   | IP_base_premium | 1000 | Base premium amount |
+| A2   | IP_risk_factor | 1.5 | Risk multiplier |
+| B1   | OP_total_premium | =IP_base_premium * IP_risk_factor | Calculated total premium |
+| B2   | OP_tax_amount | =OP_total_premium * 0.15 | 15% tax calculation |
+| B3   | OP_final_amount | =OP_total_premium + OP_tax_amount | Final premium with tax |
+
+When executing rules with this Excel template:
+
 ```bash
-curl -X POST http://localhost:3000/api/categories \
+curl -X POST http://localhost:3000/api/execute/category-id \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
-    "name": "Calculation Rules",
-    "description": "Basic arithmetic operations"
-  }'
-```
-
-2. Prepare an Excel file (rules.xlsx) with the following content:
-   - Column A (IP_A1): Input values
-   - Column B (IP_A2): Input values
-   - Column C (OP_SUM): Formula =A2+B2
-   - Column D (OP_PRODUCT): Formula =A2*B2
-
-3. Upload the rule version:
-```bash
-curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions \
-  -H "Accept: application/json" \
-  -F "file=@rules.xlsx" \
-  -F "version=1.0.0"
-```
-
-4. Execute the rules:
-```bash
-curl -X POST http://localhost:3000/api/execute/550e8400-e29b-41d4-a716-446655440000 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "IP_A1": 20,
-    "IP_A2": 30
+    "base_premium": 2000,
+    "risk_factor": 1.8
   }'
 ```
 
@@ -422,14 +417,14 @@ Expected response:
 {
   "version": "1.0.0",
   "results": {
-    "OP_SUM": 50,
-    "OP_PRODUCT": 600
+    "total_premium": 3600,
+    "tax_amount": 540,
+    "final_amount": 4140
   }
 }
 ```
 
-This workflow demonstrates:
-1. Creating a category for arithmetic operations
-2. Uploading an Excel file with input/output definitions and formulas
-3. Executing the rules with sample input values
-4. Receiving calculated results based on the Excel formulas
+This example demonstrates:
+- Using meaningful named ranges for inputs and outputs
+- Complex formula calculations using named ranges
+- Proper Excel template structure for rule execution
