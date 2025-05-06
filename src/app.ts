@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
 import { DatabaseService } from './services/DatabaseService';
+import { CleanupService } from './services/CleanupService';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,6 +16,9 @@ const initializeApp = async () => {
   try {
     const dbService = DatabaseService.getInstance();
     await dbService.initialize();
+
+    // Initialize CleanupService
+    CleanupService.getInstance();
 
     // Dynamically import routes after DB initialization
     const { default: categoryRoutes } = await import('./routes/categoryRoutes');

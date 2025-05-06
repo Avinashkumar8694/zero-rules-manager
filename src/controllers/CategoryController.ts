@@ -20,7 +20,7 @@ const upload = multer({ storage }).single('file');
 export class CategoryController {
   private categoryRepository: any;
   private versionRepository: any;
-  private excelService = new ExcelService();
+  private excelService: ExcelService;
 
   private async ensureInitialized() {
     if (!this.categoryRepository) {
@@ -43,12 +43,16 @@ export class CategoryController {
   }
 
   constructor() {
+    // Initialize services
+    this.excelService = new ExcelService();
+
     // Bind methods to ensure correct 'this' context
     this.create = this.create.bind(this);
     this.getAll = this.getAll.bind(this);
     this.getById = this.getById.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
+    this.uploadVersion = this.uploadVersion.bind(this);
     
     // Initialize database connection
     this.initialize().catch(error => {

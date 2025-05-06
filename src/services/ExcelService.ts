@@ -25,8 +25,8 @@ export class ExcelService {
           const nameStr = name.Name;
           const ref = name.Ref;
           
-          // Get the cell reference from the name definition
-          const cellAddress = ref.split('!')[1];
+          // Get the cell reference from the name definition and remove '$' characters
+          const cellAddress = ref.split('!')[1].replace(/\$/g, '');
           const cell = worksheet[cellAddress];
           
           if (!cell) continue;
@@ -124,7 +124,7 @@ export class ExcelService {
         for (const name of workbook.Workbook.Names) {
           const nameStr = name.Name;
           const ref = name.Ref;
-          const cellAddress = ref.split('!')[1];
+          const cellAddress = ref.split('!')[1].replace(/\$/g, '');
 
           if (nameStr.startsWith('IP_')) {
             const paramName = nameStr.substring(3);
@@ -188,7 +188,7 @@ export class ExcelService {
         for (const name of workbook.Workbook.Names) {
           const nameStr = name.Name;
           const ref = name.Ref;
-          const cellAddress = ref.split('!')[1];
+          const cellAddress = ref.split('!')[1].replace(/\$/g, '');
 
           if (nameStr.startsWith('OP_')) {
             const paramName = nameStr.substring(3);
