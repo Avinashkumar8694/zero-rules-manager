@@ -235,6 +235,41 @@ export class CategoryController {
       }
     });
   }
+
+  async createCodeVersion(req: Request, res: Response) {
+    try {
+      await this.ensureInitialized();
+      const { inputColumns, outputColumns } = req.body;
+
+      if (!inputColumns || !outputColumns || Object.keys(outputColumns).length === 0) {
+        return res.status(400).json({ error: 'Input and output columns are required' });
+      }
+
+      // Validate that each output column has code
+      for (const [key, output] of Object.entries(outputColumns) as [string, { code?: string }][]) {
+        if (!output.code) {
+          return res.status(400).json({ error: `Output column ${key} is missing code implementation` });
+        }
+      }
+
+      const version = this.versionRepository.create({
+        categoryId: req.params.id,
+        version: await this.generateNextVersion(req.params.id),
+        inputColumns,
+        outputColumns,
+        isActive: false
+      });
+
+      await this.versionRepository.save(version);
+      return res.status(201).json(version);
+    } catch (error: any) {
+      console.error('Code version creation error:', error);
+      return res.status(500).json({
+        error: 'Failed to create code version',
+        details: error.message
+      });
+    }
+  }
   
   private async generateNextVersion(categoryId: string, isNewUpload: boolean = true): Promise<string> {
     const versions = await this.versionRepository.find({

@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { DatabaseService } from '../services/DatabaseService';
 import { RuleVersion } from '../models/RuleVersion';
 import { ExcelService } from '../services/ExcelService';
+import { CodeExecutionService } from '../services/CodeExecutionService';
 
 export class ExecutionController {
   private versionRepository: any;
   private excelService = new ExcelService();
+  private codeService = new CodeExecutionService();
 
   private async initialize() {
     const dbService = DatabaseService.getInstance();
@@ -99,13 +101,7 @@ export class ExecutionController {
 
   private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response) {
     try {
-      // Transform input parameters to include IP_ prefix
-      const prefixedInputs: Record<string, any> = {};
-      // Object.entries(inputs).forEach(([key, value]) => {
-      //   prefixedInputs[`IP_${key}`] = value;
-      // });
-
-      // Validate input parameters against version schema
+      let results: Record<string, any>;
       const requiredInputs = version.inputColumns || {};
       const missingInputs = Object.keys(requiredInputs).filter(key => !(key in inputs));
 
@@ -115,9 +111,17 @@ export class ExecutionController {
           missingParams: missingInputs
         });
       }
-
-      // Execute rules using Excel service with prefixed inputs
-      const results = await this.excelService.executeRules(version.filePath, inputs);
+      
+      // Check if this is a code-based rule version
+      const hasCodeBasedRules = version.outputColumns && Object.values(version.outputColumns).some(output => output.code);
+      
+      if (hasCodeBasedRules) {
+        // Execute code-based rules
+        results = await this.codeService.executeCode(version, inputs);
+      } else {
+        // Execute Excel-based rules
+        results = await this.excelService.executeRules(version.filePath, inputs);
+      }
 
       return res.json({
         version: version.version,
@@ -125,7 +129,7 @@ export class ExecutionController {
       });
     } catch (error) {
       console.error('Rule execution error:', error);
-      return res.status(500).json({ error: 'Failed to execute rules' });
+      return res.status(422).json({ error: `Error executing rules: ${error.message}` });
     }
   }
 }

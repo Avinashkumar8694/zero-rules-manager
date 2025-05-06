@@ -17,7 +17,8 @@ router.get('/:id', categoryController.getById.bind(categoryController));
 router.get('/:id/versions', categoryController.getVersions.bind(categoryController));
 
 // Upload a new version for a specific category
-router.post('/:id/versions', categoryController.uploadVersion.bind(categoryController));
+router.post('/:id/versions/upload', categoryController.uploadVersion.bind(categoryController));
+router.post('/:id/versions/code', categoryController.createCodeVersion.bind(categoryController));
 
 // Update a category
 router.put('/:id', categoryController.update.bind(categoryController));

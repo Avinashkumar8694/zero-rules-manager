@@ -15,14 +15,19 @@ export class RuleVersion {
   @Column({ type: 'boolean', default: false })
   isActive!: boolean;
 
-  @Column({ type: 'varchar' })
-  filePath!: string;
+  @Column({ type: 'varchar', nullable: true })
+  filePath?: string;
 
   @Column({ type: 'jsonb', nullable: true })
   inputColumns?: Record<string, any>;
 
   @Column({ type: 'jsonb', nullable: true })
-  outputColumns?: Record<string, any>;
+  outputColumns?: Record<string, {
+    name: string;
+    type: string;
+    formula?: string;  // For Excel-based rules
+    code?: string;    // For code-based rules
+  }>;
 
   @ManyToOne(() => RuleCategory, category => category.versions)
   @JoinColumn({ name: 'categoryId' })

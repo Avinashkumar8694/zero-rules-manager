@@ -119,12 +119,65 @@ Response: 204 No Content
 
 ### Rule Versions
 
-#### Upload a Rule Version
+#### Create a Code-Based Rule Version
 ```bash
-curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions \
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/code \
+  -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -F "file=@rules.xlsx" \
-  -F "version=1.0.0"
+  -d '{
+    "inputColumns": {
+      "num1": { "name": "num1", "type": "number" },
+      "num2": { "name": "num2", "type": "number" }
+    },
+    "outputColumns": {
+      "sum": {
+        "name": "sum",
+        "type": "number",
+        "code": "return num1 + num2;"
+      },
+      "product": {
+        "name": "product",
+        "type": "number",
+        "code": "return num1 * num2;"
+      }
+    }
+  }'
+```
+
+Response (201 Created):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "categoryId": "123e4567-e89b-12d3-a456-426614174000",
+  "version": "1.0.0",
+  "inputColumns": {
+    "num1": { "name": "num1", "type": "number" },
+    "num2": { "name": "num2", "type": "number" }
+  },
+  "outputColumns": {
+    "sum": {
+      "name": "sum",
+      "type": "number",
+      "code": "return num1 + num2;"
+    },
+    "product": {
+      "name": "product",
+      "type": "number",
+      "code": "return num1 * num2;"
+    }
+  },
+  "isActive": false,
+  "createdAt": "2024-01-20T12:00:00Z",
+  "updatedAt": "2024-01-20T12:00:00Z"
+}
+```
+
+#### Create an Excel-Based Rule Version
+```bash
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/upload \
+  -H "Content-Type: multipart/form-data" \
+  -H "Accept: application/json" \
+  -F "file=@rules.xlsx"
 ```
 
 Response (201 Created):
@@ -269,7 +322,7 @@ Response (200 OK):
 
 ### Rule Execution
 
-#### Execute Latest Version
+#### Execute Latest Version (Excel-based)
 ```bash
 curl --location 'http://localhost:3000/api/categories/679bca33-df52-4798-b84e-2fe4d936b9db/latest/execute' \
 --header 'Content-Type: application/json' \
@@ -285,6 +338,28 @@ Response (200 OK):
     "version": "1.0.0",
     "results": {
         "total_premium": 1458.3495
+    }
+}
+```
+
+#### Execute Latest Version (Code-based)
+```bash
+curl --location 'http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/latest/execute' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data '{
+    "num1": 10,
+    "num2": 20
+  }'
+```
+
+Response (200 OK):
+```json
+{
+    "version": "1.0.0",
+    "results": {
+        "sum": 30,
+        "product": 200
     }
 }
 ```
