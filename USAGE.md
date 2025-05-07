@@ -237,12 +237,11 @@ Response (200 OK):
 }
 ```
 
-#### Update Version
+#### Update Version (Excel-based)
 ```bash
-curl --location --request PUT 'http://localhost:3000/api/versions/5e3d118b-062b-4a9d-b98b-994b7b1d4d12' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---form 'file=@"/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"'
+curl -X PUT http://localhost:3000/api/versions/5e3d118b-062b-4a9d-b98b-994b7b1d4d12 \
+  -H "Accept: application/json" \
+  -F "file=@/path/to/your/rules.xlsx"
 ```
 
 Response (200 OK):
@@ -252,7 +251,7 @@ Response (200 OK):
     "categoryId": "679bca33-df52-4798-b84e-2fe4d936b9db",
     "version": "1.2.0",
     "isActive": false,
-    "filePath": "uploads\\4c60041d-d941-4566-be59-5faf5709471f.xlsx",
+    "filePath": "uploads/4c60041d-d941-4566-be59-5faf5709471f.xlsx",
     "inputColumns": {
         "policy_premium": {
             "name": "policy_premium",
@@ -265,6 +264,59 @@ Response (200 OK):
             "name": "total_premium",
             "type": "number",
             "formula": "K4+(K4)*0.15"
+        }
+    },
+    "createdAt": "2025-05-06T02:27:07.288Z",
+    "updatedAt": "2025-05-06T08:54:48.583Z"
+}
+```
+
+#### Update Version (Code-based)
+```bash
+curl -X PUT http://localhost:3000/api/versions/5e3d118b-062b-4a9d-b98b-994b7b1d4d12 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "inputColumns": {
+      "num1": { "name": "num1", "type": "number" },
+      "num2": { "name": "num2", "type": "number" }
+    },
+    "outputColumns": {
+      "sum": {
+        "name": "sum",
+        "type": "number",
+        "code": "return num1 + num2;"
+      },
+      "product": {
+        "name": "product",
+        "type": "number",
+        "code": "return num1 * num2;"
+      }
+    }
+  }'
+```
+
+Response (200 OK):
+```json
+{
+    "id": "5e3d118b-062b-4a9d-b98b-994b7b1d4d12",
+    "categoryId": "679bca33-df52-4798-b84e-2fe4d936b9db",
+    "version": "1.2.0",
+    "isActive": false,
+    "inputColumns": {
+        "num1": { "name": "num1", "type": "number" },
+        "num2": { "name": "num2", "type": "number" }
+    },
+    "outputColumns": {
+        "sum": {
+            "name": "sum",
+            "type": "number",
+            "code": "return num1 + num2;"
+        },
+        "product": {
+            "name": "product",
+            "type": "number",
+            "code": "return num1 * num2;"
         }
     },
     "createdAt": "2025-05-06T02:27:07.288Z",
