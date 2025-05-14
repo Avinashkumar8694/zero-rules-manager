@@ -18,7 +18,7 @@ const initializeApp = async () => {
     await dbService.initialize();
 
     // Initialize CleanupService
-    // CleanupService.getInstance();
+    CleanupService.getInstance();
 
     // Dynamically import routes after DB initialization
     const { default: categoryRoutes } = await import('./routes/categoryRoutes');

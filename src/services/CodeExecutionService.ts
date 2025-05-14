@@ -1,7 +1,7 @@
 import { RuleVersion } from '../models/RuleVersion';
 
 export class CodeExecutionService {
-  async executeCode(version: RuleVersion | { inputColumns?: Record<string, any>; outputColumns?: Record<string, any>; code?: string }, inputs: Record<string, any>): Promise<Record<string, any>> {
+  async executeRules(version: RuleVersion | { inputColumns?: Record<string, any>; outputColumns?: Record<string, any>; code?: string }, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
       // Validate inputs against version's inputColumns
       this.validateInputs(version, inputs);

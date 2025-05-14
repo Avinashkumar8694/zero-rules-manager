@@ -1,29 +1,27 @@
 import { Request, Response } from 'express';
 import { DatabaseService } from '../services/DatabaseService';
 import { RuleVersion } from '../models/RuleVersion';
-import { FlowVersion } from '../models/FlowVersion';
 import { ExcelService } from '../services/ExcelService';
 import { CodeExecutionService } from '../services/CodeExecutionService';
 import { FlowExecutionService } from '../services/FlowExecutionService';
 
 export class ExecutionController {
-  private versionRepository: any;
-  private flowVersionRepository: any;
-  private excelService = new ExcelService();
-  private codeService = new CodeExecutionService();
-  private flowService = new FlowExecutionService();
-
-  private async initialize() {
-    const dbService = DatabaseService.getInstance();
-    this.versionRepository = dbService.getDataSource().getRepository(RuleVersion);
-    this.flowVersionRepository = dbService.getDataSource().getRepository(FlowVersion);
-  }
+  private ruleVersionRepository: any;
+  private excelService: ExcelService;
+  private codeExecutionService: CodeExecutionService;
+  private flowExecutionService: FlowExecutionService;
 
   constructor() {
-    this.initialize().catch(error => {
+    try {
+      const dbService = DatabaseService.getInstance();
+      this.ruleVersionRepository = dbService.getDataSource().getRepository(RuleVersion);
+      this.excelService = new ExcelService();
+      this.codeExecutionService = new CodeExecutionService();
+      this.flowExecutionService = new FlowExecutionService();
+    } catch (error) {
       console.error('ExecutionController initialization failed:', error);
-      process.exit(1);
-    });
+      throw error;
+    }
   }
 
   async execute(req: Request, res: Response) {
@@ -37,7 +35,7 @@ export class ExecutionController {
       }
 
       // Find active version for the category
-      const activeVersion = await this.versionRepository.findOne({
+      const activeVersion = await this.ruleVersionRepository.findOne({
         where: { categoryId, isActive: true }
       });
 
@@ -63,7 +61,7 @@ export class ExecutionController {
       }
 
       // Find latest version for the category
-      const latestVersion = await this.versionRepository.findOne({
+      const latestVersion = await this.ruleVersionRepository.findOne({
         where: { categoryId },
         order: { version: 'DESC' }
       });
@@ -89,7 +87,7 @@ export class ExecutionController {
       }
 
       // Find specific version for the category
-      const version = await this.versionRepository.findOne({
+      const version = await this.ruleVersionRepository.findOne({
         where: { id: versionId, categoryId }
       });
 
@@ -104,7 +102,7 @@ export class ExecutionController {
     }
   }
 
-  private async executeRules(version: RuleVersion | FlowVersion, inputs: Record<string, any>, res: Response) {
+  private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response) {
     try {
       let results: Record<string, any>;
       const requiredInputs = version.inputColumns || {};
@@ -116,22 +114,22 @@ export class ExecutionController {
           missingParams: missingInputs
         });
       }
-      
-      // Check if this is a flow-based version
-      if (version instanceof FlowVersion) {
-        // Execute flow-based version
-        results = await this.flowService.executeFlow(version, inputs);
-      } else {
-        // Check if this is a code-based rule version
-        const hasCodeBasedRules = version.outputColumns && Object.values(version.outputColumns).some(output => output.code);
-        
-        if (hasCodeBasedRules) {
-          // Execute code-based rules
-          results = await this.codeService.executeCode(version, inputs);
-        } else {
-          // Execute Excel-based rules
+
+      switch (version.type) {
+        case 'flow':
+          if (!version.flowConfig) throw new Error('Flow configuration is missing');
+          results = await this.flowExecutionService.executeFlow(version, inputs);
+          break;
+        case 'excel':
+          if (!version.filePath) throw new Error('Excel file path is missing');
           results = await this.excelService.executeRules(version.filePath, inputs);
-        }
+          break;
+        case 'code':
+          if (!version.outputColumns) throw new Error('Code configuration is missing');
+          results = await this.codeExecutionService.executeRules(version, inputs);
+          break;
+        default:
+          throw new Error('Invalid rule version type');
       }
 
       return res.json({

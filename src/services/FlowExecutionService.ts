@@ -1,4 +1,4 @@
-import { FlowVersion } from '../models/FlowVersion';
+import { RuleVersion } from '../models/RuleVersion';
 import { ExcelService } from './ExcelService';
 import { CodeExecutionService } from './CodeExecutionService';
 
@@ -6,7 +6,7 @@ export class FlowExecutionService {
   private excelService = new ExcelService();
   private codeService = new CodeExecutionService();
 
-  async executeFlow(version: FlowVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
+  async executeFlow(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
       // Validate inputs against version's inputColumns
       this.validateInputs(version, inputs);
@@ -27,21 +27,21 @@ export class FlowExecutionService {
       const nodeResults: Record<string, any> = {};
 
       // Keep executing nodes until all nodes are processed
-      while (executedNodes.size < version.flow.nodes.length) {
-        for (const node of version.flow.nodes) {
+      while (executedNodes.size < version.flowConfig.nodes.length) {
+        for (const node of version.flowConfig.nodes) {
           if (executedNodes.has(node.id)) continue;
 
           // Check if all input nodes are executed
-          const inputNodes = this.getInputNodes(node.id, version.flow.connections);
+          const inputNodes = this.getInputNodes(node.id, version.flowConfig.connections);
           if (!this.areInputNodesExecuted(inputNodes, executedNodes)) continue;
 
           // Execute node
-          const nodeInputs = this.prepareNodeInputs(node, context, version.flow.connections, nodeResults);
+          const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
           const nodeResult = await this.executeNode(node, nodeInputs);
 
           // Update context with node results
           nodeResults[node.id] = nodeResult;
-          this.updateContext(context, node, nodeResult, version.flow.connections);
+          this.updateContext(context, node, nodeResult, version.flowConfig.connections);
 
           executedNodes.add(node.id);
         }
@@ -54,7 +54,7 @@ export class FlowExecutionService {
     }
   }
 
-  private validateInputs(version: FlowVersion, inputs: Record<string, any>) {
+  private validateInputs(version: RuleVersion, inputs: Record<string, any>) {
     if (!version.inputColumns) {
       throw new Error('No input columns defined for this version');
     }
@@ -70,7 +70,7 @@ export class FlowExecutionService {
     }
   }
 
-  private initializeFlowVariables(version: FlowVersion): Record<string, any> {
+  private initializeFlowVariables(version: RuleVersion): Record<string, any> {
     const variables: Record<string, any> = {};
     if (version.variables) {
       for (const [key, variable] of Object.entries(version.variables)) {
@@ -80,7 +80,7 @@ export class FlowExecutionService {
     return variables;
   }
 
-  private getInputNodes(nodeId: string, connections: FlowVersion['flow']['connections']): string[] {
+  private getInputNodes(nodeId: string, connections: RuleVersion['flowConfig']['connections']): string[] {
     const inputNodes = new Set<string>();
     for (const connection of connections) {
       if (Array.isArray(connection.to)) {
@@ -109,9 +109,9 @@ export class FlowExecutionService {
   }
 
   private prepareNodeInputs(
-    node: FlowVersion['flow']['nodes'][0],
+    node: RuleVersion['flowConfig']['nodes'][0],
     context: { flow: Record<string, any> },
-    connections: FlowVersion['flow']['connections'],
+    connections: RuleVersion['flowConfig']['connections'],
     nodeResults: Record<string, any>
   ): Record<string, any> {
     const inputs: Record<string, any> = {};
@@ -126,7 +126,7 @@ export class FlowExecutionService {
   }
 
   private async executeNode(
-    node: FlowVersion['flow']['nodes'][0],
+    node: RuleVersion['flowConfig']['nodes'][0],
     inputs: Record<string, any>
   ): Promise<Record<string, any>> {
     switch (node.type) {
@@ -151,7 +151,7 @@ export class FlowExecutionService {
             outputColumns: {},
             code: node.config.code
           };
-          return this.codeService.executeCode(codeVersion, inputs);
+          return this.codeService.executeRules(codeVersion, inputs);
         }
         throw new Error('Invalid Code node configuration');
 
@@ -162,9 +162,9 @@ export class FlowExecutionService {
 
   private updateContext(
     context: { flow: Record<string, any> },
-    node: FlowVersion['flow']['nodes'][0],
+    node: RuleVersion['flowConfig']['nodes'][0],
     nodeResult: Record<string, any>,
-    connections: FlowVersion['flow']['connections']
+    connections: RuleVersion['flowConfig']['connections']
   ) {
     // Update flow variables based on output_mapping
     for (const [sourcePath, targetPath] of Object.entries(node.config.output_mapping)) {
@@ -204,7 +204,7 @@ export class FlowExecutionService {
     current[parts[parts.length - 1]] = value;
   }
 
-  private mapOutputs(version: FlowVersion, flowVariables: Record<string, any>): Record<string, any> {
+  private mapOutputs(version: RuleVersion, flowVariables: Record<string, any>): Record<string, any> {
     const outputs: Record<string, any> = {};
     if (version.outputColumns) {
       for (const [key, output] of Object.entries(version.outputColumns)) {

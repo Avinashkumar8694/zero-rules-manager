@@ -223,6 +223,9 @@ export class CategoryController {
           categoryId: req.params.id,
           version: await this.generateNextVersion(req.params.id),
           filePath: file.path,
+          name: req.body.name,
+          description: req.body.description,
+          type: 'excel',
           inputColumns: inputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
           outputColumns: outputs.reduce((acc, param) => ({ ...acc, [param.name]: param }), {}),
           isActive: false
@@ -257,6 +260,9 @@ export class CategoryController {
         version: await this.generateNextVersion(req.params.id),
         inputColumns,
         outputColumns,
+        name: req.body.name,
+        description: req.body.description,
+        type: 'code',
         isActive: false
       });
 

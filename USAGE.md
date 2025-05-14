@@ -530,13 +530,130 @@ Example Excel file structure:
 When executing rules with this Excel template:
 
 ```bash
-curl -X POST http://localhost:3000/api/execute/category-id \
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/flow \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
-    "base_premium": 2000,
-    "risk_factor": 1.8
+    "name": "1.0.0",
+    "description": "Basic calculation flow",
+    "type": "flow",
+    "inputColumns": {
+      "amount": { "type": "number", "name": "amount" },
+      "rate": { "type": "number", "name": "rate" }
+    },
+    "outputColumns": {
+      "total": { "type": "number", "name": "total" },
+      "tax": { "type": "number", "name": "tax" }
+    },
+    "variables": {
+      "taxRate": {
+        "type": "number",
+        "default": 0.1,
+        "description": "Tax rate percentage"
+      }
+    },
+    "flowConfig": {
+      "nodes": [
+        {
+          "id": "calc1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return amount * rate;",
+            "input_mapping": {
+              "amount": "amount",
+              "rate": "rate"
+            },
+            "output_mapping": {
+              "result": "total"
+            }
+          }
+        },
+        {
+          "id": "calc2",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return total * taxRate;",
+            "input_mapping": {
+              "total": "total",
+              "taxRate": "taxRate"
+            },
+            "output_mapping": {
+              "result": "tax"
+            }
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "node": "calc1",
+            "outputs": { "result": "total" }
+          },
+          "to": {
+            "node": "calc2",
+            "inputs": { "total": "total" }
+          }
+        }
+      ]
+    }
   }'
+
+Response (201 Created):
+```json
+{
+  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
+  "categoryId": "550e8400-e29b-41d4-a716-446655440000",
+  "version": "1.0.0",
+  "description": "Basic calculation flow",
+  "type": "flow",
+  "isActive": false,
+  "inputColumns": {
+    "amount": { "type": "number", "name": "amount" },
+    "rate": { "type": "number", "name": "rate" }
+  },
+  "outputColumns": {
+    "total": { "type": "number", "name": "total" },
+    "tax": { "type": "number", "name": "tax" }
+  },
+  "variables": {
+    "taxRate": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Tax rate percentage"
+    }
+  },
+  "flowConfig": {
+    "nodes": [...],
+    "connections": [...]
+  },
+  "createdAt": "2024-01-20T12:00:00Z",
+  "updatedAt": "2024-01-20T12:00:00Z"
+}
+```
+
+#### Execute Flow Version
+```bash
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/:versionId/execute \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "amount": 100,
+    "rate": 1.5
+  }'
+```
+
+Response (200 OK):
+```json
+{
+  "version": "1.0.0",
+  "results": {
+    "total": 150,
+    "tax": 15
+  }
+}
+```
 ```
 
 Expected response:

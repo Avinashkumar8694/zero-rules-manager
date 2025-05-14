@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { DatabaseService } from '../services/DatabaseService';
-import { FlowVersion } from '../models/FlowVersion';
+import { RuleVersion } from '../models/RuleVersion';
 
 export class FlowVersionController {
-  private flowVersionRepository: any;
+  private ruleVersionRepository: any;
 
   private async initialize() {
     const dbService = DatabaseService.getInstance();
-    this.flowVersionRepository = dbService.getDataSource().getRepository(FlowVersion);
+    this.ruleVersionRepository = dbService.getDataSource().getRepository(RuleVersion);
   }
 
   constructor() {
@@ -20,10 +20,10 @@ export class FlowVersionController {
   async create(req: Request, res: Response) {
     try {
       const categoryId = req.params.id;
-      const { name, description, inputColumns, outputColumns, variables, flow } = req.body;
+      const { name, description, type, inputColumns, outputColumns, variables, flow, filePath } = req.body;
 
       // Validate required fields
-      if (!name || !flow || !flow.nodes || !flow.connections) {
+      if (!name || !flow || !flow.nodes || !flow.connections || !type) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
@@ -48,18 +48,21 @@ export class FlowVersionController {
       }
 
       // Create new flow version
-      const flowVersion = this.flowVersionRepository.create({
+      const flowVersion = this.ruleVersionRepository.create({
         categoryId,
-        version: name,
+        version: await this.generateNextVersion(req.params.id),
         description,
+        name,
+        type,
         inputColumns,
         outputColumns,
         variables,
-        flow,
-        isActive: false
+        flowConfig:flow,
+        isActive: false,
+        filePath,
       });
 
-      await this.flowVersionRepository.save(flowVersion);
+      await this.ruleVersionRepository.save(flowVersion);
 
       return res.status(201).json(flowVersion);
     } catch (error) {
@@ -73,12 +76,12 @@ export class FlowVersionController {
       const versionId = req.params.id;
       const { name, description, inputColumns, outputColumns, variables, flow } = req.body;
 
-      const existingVersion = await this.flowVersionRepository.findOne({
+      const existingVersion = await this.ruleVersionRepository.findOne({
         where: { id: versionId }
       });
 
       if (!existingVersion) {
-        return res.status(404).json({ error: 'Flow version not found' });
+        return res.status(404).json({ error: 'Rule version not found' });
       }
 
       // Update version
@@ -91,7 +94,7 @@ export class FlowVersionController {
         flow: flow || existingVersion.flow
       });
 
-      await this.flowVersionRepository.save(existingVersion);
+      await this.ruleVersionRepository.save(existingVersion);
 
       return res.json(existingVersion);
     } catch (error) {
@@ -104,20 +107,37 @@ export class FlowVersionController {
     try {
       const versionId = req.params.id;
 
-      const existingVersion = await this.flowVersionRepository.findOne({
+      const existingVersion = await this.ruleVersionRepository.findOne({
         where: { id: versionId }
       });
 
       if (!existingVersion) {
-        return res.status(404).json({ error: 'Flow version not found' });
+        return res.status(404).json({ error: 'Rule version not found' });
       }
 
-      await this.flowVersionRepository.remove(existingVersion);
+      await this.ruleVersionRepository.remove(existingVersion);
 
       return res.status(204).send();
     } catch (error) {
       console.error('Flow version deletion error:', error);
       return res.status(500).json({ error: 'Failed to delete flow version' });
     }
+  }
+  private async generateNextVersion(categoryId: string, isNewUpload: boolean = true): Promise<string> {
+    const versions = await this.ruleVersionRepository.find({
+      where: { categoryId },
+      order: { createdAt: 'DESC' }
+    });
+  
+    if (versions.length === 0) {
+      return '1.0.0';
+    }
+  
+    const latestVersion = versions[0].version;
+    const [major, minor, patch] = latestVersion.split('.').map(Number);
+    
+    // For new uploads, increment major version
+    // For updates, increment minor version
+    return isNewUpload ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
   }
 }
