@@ -168,8 +168,8 @@ export class FlowExecutionService {
   ) {
     // Update flow variables based on output_mapping
     for (const [sourcePath, targetPath] of Object.entries(node.config.output_mapping)) {
-      const value = this.resolveValue(sourcePath, { ...context, [node.id]: nodeResult });
-      this.setValueByPath(context.flow, targetPath, value);
+      const value = this.resolveValue(sourcePath, { ...context, [node.id]: nodeResult, ...nodeResult });
+      this.setValueByPath(context, targetPath, value);
     }
 
     // Process connections with transforms
@@ -192,7 +192,7 @@ export class FlowExecutionService {
   }
 
   private setValueByPath(obj: Record<string, any>, path: string, value: any) {
-    const parts = path.replace('$.flow.', '').split('.');
+    const parts = path.replace('$.', '').split('.');
     let current = obj;
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];
