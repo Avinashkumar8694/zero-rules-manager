@@ -118,7 +118,7 @@ export class FlowExecutionService {
 
     // Map inputs from flow variables using input_mapping
     for (const [targetKey, sourcePath] of Object.entries(node.config.input_mapping)) {
-      const value = this.resolveValue(sourcePath, context);
+      const value = this.resolveValue(sourcePath, context.flow);
       inputs[targetKey] = value;
     }
 
@@ -168,8 +168,13 @@ export class FlowExecutionService {
   ) {
     // Update flow variables based on output_mapping
     for (const [sourcePath, targetPath] of Object.entries(node.config.output_mapping)) {
-      const value = this.resolveValue(sourcePath, { ...context, [node.id]: nodeResult, ...nodeResult });
-      this.setValueByPath(context, targetPath, value);
+      context['flow'] = {
+        ...context['flow'],
+        ...nodeResult,
+        [node.id]: nodeResult
+      };
+      const value = this.resolveValue(sourcePath, context.flow);
+      this.setValueByPath(context.flow, targetPath, value);
     }
 
     // Process connections with transforms
@@ -182,7 +187,7 @@ export class FlowExecutionService {
   }
 
   private resolveValue(path: string, context: Record<string, any>): any {
-    const parts = path.replace('$.', '').split('.');
+    const parts = path.replace('$.flow.', '')?.replace('$.', '').split('.');
     let value = context;
     for (const part of parts) {
       value = value[part];
@@ -192,7 +197,7 @@ export class FlowExecutionService {
   }
 
   private setValueByPath(obj: Record<string, any>, path: string, value: any) {
-    const parts = path.replace('$.', '').split('.');
+    const parts = path.replace('$.flow.', '').split('.');
     let current = obj;
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];
@@ -208,7 +213,8 @@ export class FlowExecutionService {
     const outputs: Record<string, any> = {};
     if (version.outputColumns) {
       for (const [key, output] of Object.entries(version.outputColumns)) {
-        outputs[key] = flowVariables[key];
+        const value = this.resolveValue(`$.flow.${key}`, flowVariables );
+        outputs[key] = value;
       }
     }
     return outputs;
