@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { RuleCategory } from '../models/RuleCategory';
 import { RuleVersion } from '../models/RuleVersion';
+import { FlowVersion } from '../models/FlowVersion';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || 'rules_manager',
   synchronize: true,
   logging: true,
-  entities: [RuleCategory, RuleVersion],
+  entities: [RuleCategory, RuleVersion, FlowVersion],
   migrations: ['src/migrations/**/*.ts'],
   subscribers: ['src/subscribers/**/*.ts'],
 });

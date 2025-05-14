@@ -1,17 +1,22 @@
 import { Request, Response } from 'express';
 import { DatabaseService } from '../services/DatabaseService';
 import { RuleVersion } from '../models/RuleVersion';
+import { FlowVersion } from '../models/FlowVersion';
 import { ExcelService } from '../services/ExcelService';
 import { CodeExecutionService } from '../services/CodeExecutionService';
+import { FlowExecutionService } from '../services/FlowExecutionService';
 
 export class ExecutionController {
   private versionRepository: any;
+  private flowVersionRepository: any;
   private excelService = new ExcelService();
   private codeService = new CodeExecutionService();
+  private flowService = new FlowExecutionService();
 
   private async initialize() {
     const dbService = DatabaseService.getInstance();
     this.versionRepository = dbService.getDataSource().getRepository(RuleVersion);
+    this.flowVersionRepository = dbService.getDataSource().getRepository(FlowVersion);
   }
 
   constructor() {
@@ -99,7 +104,7 @@ export class ExecutionController {
     }
   }
 
-  private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response) {
+  private async executeRules(version: RuleVersion | FlowVersion, inputs: Record<string, any>, res: Response) {
     try {
       let results: Record<string, any>;
       const requiredInputs = version.inputColumns || {};
@@ -112,15 +117,21 @@ export class ExecutionController {
         });
       }
       
-      // Check if this is a code-based rule version
-      const hasCodeBasedRules = version.outputColumns && Object.values(version.outputColumns).some(output => output.code);
-      
-      if (hasCodeBasedRules) {
-        // Execute code-based rules
-        results = await this.codeService.executeCode(version, inputs);
+      // Check if this is a flow-based version
+      if (version instanceof FlowVersion) {
+        // Execute flow-based version
+        results = await this.flowService.executeFlow(version, inputs);
       } else {
-        // Execute Excel-based rules
-        results = await this.excelService.executeRules(version.filePath, inputs);
+        // Check if this is a code-based rule version
+        const hasCodeBasedRules = version.outputColumns && Object.values(version.outputColumns).some(output => output.code);
+        
+        if (hasCodeBasedRules) {
+          // Execute code-based rules
+          results = await this.codeService.executeCode(version, inputs);
+        } else {
+          // Execute Excel-based rules
+          results = await this.excelService.executeRules(version.filePath, inputs);
+        }
       }
 
       return res.json({

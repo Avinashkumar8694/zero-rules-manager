@@ -18,18 +18,20 @@ const initializeApp = async () => {
     await dbService.initialize();
 
     // Initialize CleanupService
-    CleanupService.getInstance();
+    // CleanupService.getInstance();
 
     // Dynamically import routes after DB initialization
     const { default: categoryRoutes } = await import('./routes/categoryRoutes');
     const { default: versionRoutes } = await import('./routes/versionRoutes');
     const { default: executionRoutes } = await import('./routes/executionRoutes');
     const { default: versionExecutionRoutes } = await import('./routes/versionExecutionRoutes');
+    const { default: flowVersionRoutes } = await import('./routes/flowVersionRoutes');
 
     app.use('/api/categories', categoryRoutes);
     app.use('/api/versions', versionRoutes);
     app.use('/api/execute', executionRoutes);
     app.use('/api', versionExecutionRoutes);
+    app.use('/api/categories', flowVersionRoutes);
 
     // Start server
     app.listen(port, () => {

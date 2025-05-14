@@ -1,7 +1,7 @@
 import { RuleVersion } from '../models/RuleVersion';
 
 export class CodeExecutionService {
-  async executeCode(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
+  async executeCode(version: RuleVersion | { inputColumns?: Record<string, any>; outputColumns?: Record<string, any>; code?: string }, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
       // Validate inputs against version's inputColumns
       this.validateInputs(version, inputs);
@@ -12,13 +12,18 @@ export class CodeExecutionService {
       // Execute the code logic in a controlled environment
       const results: Record<string, any> = {};
       
-      // Execute each output calculation
-      if (version.outputColumns) {
+      // Handle both inline code and output columns
+      if ('code' in version && version.code) {
+        // For inline code execution
+        const calculateOutput = new Function(...Object.keys(inputs), version.code);
+        return { result: calculateOutput(...Object.values(inputs)) };
+      } else if (version.outputColumns) {
+        // For output columns with code
         for (const [key, output] of Object.entries(version.outputColumns)) {
-          // Create a new Function with the code logic and execute it
-          // The function will only have access to the input parameters
-          const calculateOutput = new Function(...Object.keys(inputs), output.code);
-          results[key] = calculateOutput(...Object.values(inputs));
+          if ('code' in output && output.code) {
+            const calculateOutput = new Function(...Object.keys(inputs), output.code);
+            results[key] = calculateOutput(...Object.values(inputs));
+          }
         }
       }
 
@@ -28,7 +33,7 @@ export class CodeExecutionService {
     }
   }
 
-  private validateInputs(version: RuleVersion, inputs: Record<string, any>) {
+  private validateInputs(version: RuleVersion | { inputColumns?: Record<string, any>; outputColumns?: Record<string, any>; code?: string }, inputs: Record<string, any>) {
     if (!version.inputColumns) {
       throw new Error('No input columns defined for this version');
     }

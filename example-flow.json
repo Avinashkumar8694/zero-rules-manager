@@ -1,0 +1,40 @@
+{
+    "version": "1.0.0",
+    "inputColumns": {
+        "policy_premium": {
+            "type": "number"
+        }
+    },
+    "outputColumns": {
+        "result": {
+            "type": "number"
+        }
+    },
+    "flow": {
+        "nodes": [
+            {
+                "id": "excel-1",
+                "type": "excel",
+                "config": {
+                    "mode": "inline",
+                    "excel_file": "example.xlsx",
+                    "input_mapping": {
+                        "IP_policy_premium": "$.flow.policy_premium"
+                    },
+                    "output_mapping": {
+                        "$.flow.result": "$.OP_result"
+                    },
+                    "metadata": {
+                        "name": "Premium Calculator",
+                        "description": "Calculates premium based on input",
+                        "tags": [
+                            "premium",
+                            "calculation"
+                        ]
+                    }
+                }
+            }
+        ],
+        "connections": []
+    }
+}
