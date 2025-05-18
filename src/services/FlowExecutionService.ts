@@ -1,10 +1,45 @@
 import { RuleVersion } from '../models/RuleVersion';
 import { ExcelService } from './ExcelService';
 import { CodeExecutionService } from './CodeExecutionService';
+import { DatabaseService } from './DatabaseService';
 
 export class FlowExecutionService {
   private excelService = new ExcelService();
   private codeService = new CodeExecutionService();
+  private versionRepository: any;
+
+  constructor() {
+    this.initialize().catch(error => {
+      console.error('FlowExecutionService initialization failed:', error);
+    });
+  }
+
+  private async initialize() {
+    try {
+      if (!DatabaseService.getInstance().getDataSource().isInitialized) {
+        await DatabaseService.initializeDatabase();
+      }
+      const dataSource = DatabaseService.getInstance().getDataSource();
+      this.versionRepository = dataSource.getRepository(RuleVersion);
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      throw new Error('Failed to initialize database connection');
+    }
+  }
+
+  private async getReferencedVersion(versionId: string): Promise<RuleVersion | null> {
+    try {
+      if (!this.versionRepository) {
+        await this.initialize();
+      }
+      return await this.versionRepository.findOne({
+        where: { id: versionId }
+      });
+    } catch (error) {
+      console.error('Error fetching referenced version:', error);
+      return null;
+    }
+  }
 
   async executeFlow(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
@@ -133,8 +168,11 @@ export class FlowExecutionService {
       case 'excel':
         if (node.config.mode === 'reference' && node.config.version_id) {
           // Execute referenced Excel version
-          // This would require fetching the referenced version and executing it
-          throw new Error('Referenced Excel version execution not implemented');
+          const referencedVersion = await this.getReferencedVersion(node.config.version_id);
+          if (!referencedVersion || !referencedVersion.filePath) {
+            throw new Error('Referenced Excel version not found or invalid');
+          }
+          return this.excelService.executeRules(referencedVersion.filePath, inputs);
         } else if (node.config.excel_file) {
           return this.excelService.executeRules(node.config.excel_file, inputs);
         }
@@ -143,8 +181,11 @@ export class FlowExecutionService {
       case 'code':
         if (node.config.mode === 'reference' && node.config.version_id) {
           // Execute referenced Code version
-          // This would require fetching the referenced version and executing it
-          throw new Error('Referenced Code version execution not implemented');
+          const referencedVersion = await this.getReferencedVersion(node.config.version_id);
+          if (!referencedVersion) {
+            throw new Error('Referenced Code version not found');
+          }
+          return this.codeService.executeRules(referencedVersion, inputs);
         } else if (node.config.code) {
           const codeVersion = {
             inputColumns: {},
