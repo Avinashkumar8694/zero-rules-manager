@@ -29,6 +29,12 @@ A powerful business rules engine that transforms Excel-based business logic into
   - Execution history tracking
   - Performance optimization for large rule sets
 
+- **Parallel Flow Execution with Conditions**
+  - Execute multiple paths concurrently
+  - Evaluate conditions before executing nodes
+  - Synchronize results at convergence points
+  - Apply transforms to data before passing to target nodes
+
 For detailed usage instructions and examples, see [USAGE.md](./USAGE.md).
 
 ## Tech Stack
