@@ -65,7 +65,12 @@ export class FlowExecutionService {
           const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
 
           // Evaluate conditions before executing the node
-          const connections = version.flowConfig.connections.filter(connection => connection.to.node === node.id);
+          const connections = version.flowConfig.connections.filter(connection => {
+            if (Array.isArray(connection.to)) {
+              return connection.to.some(target => target.node === node.id);
+            }
+            return connection.to.node === node.id;
+          });
           for (const connection of connections) {
             if (connection.condition && !this.evaluateCondition(connection.condition, context)) {
               return;
@@ -159,16 +164,35 @@ export class FlowExecutionService {
     }
 
     // Handle connection inputs and input properly based on whether it is object or array
-    const nodeConnections = connections.filter(connection => connection.to.node === node.id);
+    const nodeConnections = connections.filter(connection => {
+      if (Array.isArray(connection.to)) {
+        return connection.to.some(target => target.node === node.id);
+      }
+      return connection.to.node === node.id;
+    });
     for (const connection of nodeConnections) {
-      if (connection.to.inputs) {
-        for (const [targetKey, sourcePath] of Object.entries(connection.to.inputs)) {
-          const value = this.resolveValue(sourcePath, context.flow);
-          inputs[targetKey] = value;
+      if (Array.isArray(connection.to)) {
+        for (const target of connection.to) {
+          if (target.inputs) {
+            for (const [targetKey, sourcePath] of Object.entries(target.inputs)) {
+              const value = this.resolveValue(sourcePath, context.flow);
+              inputs[targetKey] = value;
+            }
+          } else if (target.input) {
+            const value = this.resolveValue(target.value!, context.flow);
+            inputs[target.input] = value;
+          }
         }
-      } else if (connection.to.input) {
-        const value = this.resolveValue(connection.to.value, context.flow);
-        inputs[connection.to.input] = value;
+      } else {
+        if (connection.to.inputs) {
+          for (const [targetKey, sourcePath] of Object.entries(connection.to.inputs)) {
+            const value = this.resolveValue(sourcePath, context.flow);
+            inputs[targetKey] = value;
+          }
+        } else if (connection.to.input) {
+          const value = this.resolveValue(connection.to.value!, context.flow);
+          inputs[connection.to.input] = value;
+        }
       }
     }
 
@@ -293,7 +317,7 @@ export class FlowExecutionService {
     try {
       const transformFunction = new Function('context', `with (context) { return ${connection.transform}; }`);
       const transformedValue = transformFunction(context.flow);
-      this.setValueByPath(context.flow, connection.to.input, transformedValue);
+      this.setValueByPath(context.flow, connection.to.input!, transformedValue);
     } catch (error) {
       console.error('Error handling transform:', error);
     }
