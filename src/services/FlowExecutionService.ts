@@ -268,7 +268,13 @@ export class FlowExecutionService {
     try {
       const transformFunction = new Function('context', `with (context) { return ${connection.transform}; }`);
       const transformedValue = transformFunction(context.flow);
-      this.setValueByPath(context.flow, connection.to.input, transformedValue);
+      if (connection.to.inputs) {
+        for (const [key, value] of Object.entries(connection.to.inputs)) {
+          this.setValueByPath(context.flow, value, transformedValue);
+        }
+      } else if (connection.to.input) {
+        this.setValueByPath(context.flow, connection.to.input, transformedValue);
+      }
     } catch (error) {
       console.error('Error handling transform:', error);
     }
