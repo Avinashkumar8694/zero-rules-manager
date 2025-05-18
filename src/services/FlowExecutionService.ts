@@ -41,6 +41,64 @@ export class FlowExecutionService {
     }
   }
 
+  private evaluateCondition(condition: string, context: { flow: Record<string, any> }): boolean {
+    try {
+      // Simple evaluation for now - can be enhanced with a proper expression evaluator
+      const value = this.resolveValue(condition, context.flow);
+      return Boolean(value);
+    } catch (error) {
+      console.error('Error evaluating condition:', error);
+      return false;
+    }
+  }
+
+  private async executeParallelPaths(
+    node: RuleVersion['flowConfig']['nodes'][0],
+    context: { flow: Record<string, any> },
+    connections: RuleVersion['flowConfig']['connections'],
+    nodeResults: Record<string, any>,
+    executedNodes: Set<string>,
+    version: RuleVersion
+  ): Promise<void> {
+    // Get all outgoing connections for this node
+    const outgoingConnections = connections.filter(conn => {
+      if (Array.isArray(conn.from)) {
+        return conn.from.some(f => f.node === node.id);
+      }
+      return conn.from.node === node.id;
+    });
+
+    // Filter valid connections based on conditions
+    const validConnections = outgoingConnections.filter(conn => {
+      return !conn.condition || this.evaluateCondition(conn.condition, context);
+    });
+
+    // Execute all valid paths in parallel
+    const executionPromises = validConnections.map(async (conn) => {
+      const targetNodes = Array.isArray(conn.to) ? conn.to : [conn.to];
+      
+      const nodePromises = targetNodes.map(async (target) => {
+        const targetNode = this.findNode(target.node, version);
+        if (!targetNode) return;
+
+        const nodeInputs = this.prepareNodeInputs(targetNode, context, connections, nodeResults);
+        try {
+          const result = await this.executeNode(targetNode, nodeInputs);
+          nodeResults[targetNode.id] = result;
+          this.updateContext(context, targetNode, result, connections);
+          executedNodes.add(targetNode.id);
+        } catch (error) {
+          console.error(`Error executing node ${targetNode.id}:`, error);
+          // Continue with other paths despite error
+        }
+      });
+
+      await Promise.all(nodePromises);
+    });
+
+    await Promise.all(executionPromises);
+  }
+
   async executeFlow(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
       // Validate inputs against version's inputColumns
@@ -57,35 +115,103 @@ export class FlowExecutionService {
         }
       };
 
-      // Execute nodes in topological order
+      // Execute nodes in topological order with parallel support
       const executedNodes = new Set<string>();
       const nodeResults: Record<string, any> = {};
+      const errorNodes = new Set<string>();
 
-      // Keep executing nodes until all nodes are processed
-      while (executedNodes.size < version.flowConfig.nodes.length) {
-        for (const node of version.flowConfig.nodes) {
-          if (executedNodes.has(node.id)) continue;
-
-          // Check if all input nodes are executed
+      // Keep executing nodes until all nodes are processed or no more nodes can be executed
+      while (executedNodes.size + errorNodes.size < version.flowConfig.nodes.length) {
+        const nodesToExecute = version.flowConfig.nodes.filter(node => {
+          // Skip already executed or error nodes
+          if (executedNodes.has(node.id) || errorNodes.has(node.id)) return false;
+          
+          // Get input nodes and check their status
           const inputNodes = this.getInputNodes(node.id, version.flowConfig.connections);
-          if (!this.areInputNodesExecuted(inputNodes, executedNodes)) continue;
+          const allInputsExecuted = this.areInputNodesExecuted(inputNodes, executedNodes);
+          const hasFailedDependencies = inputNodes.some(nodeId => errorNodes.has(nodeId));
 
-          // Execute node
-          const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
-          const nodeResult = await this.executeNode(node, nodeInputs);
+          // Node can be executed if all inputs are executed and none have failed
+          return allInputsExecuted && !hasFailedDependencies;
+        });
 
-          // Update context with node results
-          nodeResults[node.id] = nodeResult;
-          this.updateContext(context, node, nodeResult, version.flowConfig.connections);
-
-          executedNodes.add(node.id);
+        if (nodesToExecute.length === 0) {
+          // If no nodes can be executed but we haven't processed all nodes,
+          // it means we have a deadlock or all remaining nodes have failed dependencies
+          const remainingNodes = version.flowConfig.nodes.filter(node => 
+            !executedNodes.has(node.id) && !errorNodes.has(node.id)
+          );
+          
+          if (remainingNodes.length > 0) {
+            console.warn('Some nodes could not be executed due to failed dependencies:', 
+              remainingNodes.map(n => n.id));
+          }
+          break;
         }
+
+        // Execute independent nodes in parallel with error handling
+        const executionResults = await Promise.allSettled(
+          nodesToExecute.map(async node => {
+            try {
+              await this.handleNodeExecution(node, context, version.flowConfig.connections, nodeResults, executedNodes, version);
+              return { nodeId: node.id, success: true };
+            } catch (error) {
+              console.error(`Error executing node ${node.id}:`, error);
+              errorNodes.add(node.id);
+              // Stop flow execution on node failure
+              throw new Error(`Flow execution stopped due to failure in node ${node.id}: ${error.message}`);
+            }
+          })
+        );
+
+        // Process execution results and stop on any failure
+        for (const result of executionResults) {
+          if (result.status === 'rejected') {
+            throw new Error(result.reason);
+          }
+        }
+      }
+
+      // Process any failed nodes
+      if (errorNodes.size > 0) {
+        console.warn('Some nodes failed during execution:', Array.from(errorNodes));
       }
 
       // Map flow variables to output columns
       return this.mapOutputs(version, context.flow);
     } catch (error) {
       throw new Error(`Failed to execute flow version: ${error.message}`);
+    }
+  }
+
+  private findNode(nodeId: string, version: RuleVersion): RuleVersion['flowConfig']['nodes'][0] | undefined {
+    if (!version.flowConfig?.nodes) {
+      console.error('Flow configuration or nodes not found');
+      return undefined;
+    }
+    return version.flowConfig.nodes.find(n => n.id === nodeId);
+  }
+
+  private async handleNodeExecution(
+    node: RuleVersion['flowConfig']['nodes'][0],
+    context: { flow: Record<string, any> },
+    connections: RuleVersion['flowConfig']['connections'],
+    nodeResults: Record<string, any>,
+    executedNodes: Set<string>,
+    version: RuleVersion
+  ): Promise<void> {
+    try {
+      const nodeInputs = this.prepareNodeInputs(node, context, connections, nodeResults);
+      const nodeResult = await this.executeNode(node, nodeInputs);
+      nodeResults[node.id] = nodeResult;
+      this.updateContext(context, node, nodeResult, connections);
+      executedNodes.add(node.id);
+
+      // Handle parallel paths from this node
+      await this.executeParallelPaths(node, context, connections, nodeResults, executedNodes, version);
+    } catch (error) {
+      console.error(`Error executing node ${node.id}:`, error);
+      // Continue with other paths despite error
     }
   }
 
