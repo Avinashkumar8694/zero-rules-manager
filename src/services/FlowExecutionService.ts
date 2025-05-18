@@ -63,6 +63,15 @@ export class FlowExecutionService {
           if (!this.areInputNodesExecuted(inputNodes, executedNodes)) return;
 
           const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
+
+          // Evaluate conditions before executing the node
+          const connections = version.flowConfig.connections.filter(connection => connection.to.node === node.id);
+          for (const connection of connections) {
+            if (connection.condition && !this.evaluateCondition(connection.condition, context)) {
+              return;
+            }
+          }
+
           const nodeResult = await this.executeNode(node, nodeInputs);
 
           nodeResults[node.id] = nodeResult;
@@ -73,6 +82,8 @@ export class FlowExecutionService {
 
         await Promise.all(executionPromises);
       }
+
+      this.synchronizeResults(context, nodeResults);
 
       return this.mapOutputs(version, context.flow);
     } catch (error) {
@@ -145,6 +156,20 @@ export class FlowExecutionService {
     for (const [targetKey, sourcePath] of Object.entries(node.config.input_mapping)) {
       const value = this.resolveValue(sourcePath, context.flow);
       inputs[targetKey] = value;
+    }
+
+    // Handle connection inputs and input properly based on whether it is object or array
+    const nodeConnections = connections.filter(connection => connection.to.node === node.id);
+    for (const connection of nodeConnections) {
+      if (connection.to.inputs) {
+        for (const [targetKey, sourcePath] of Object.entries(connection.to.inputs)) {
+          const value = this.resolveValue(sourcePath, context.flow);
+          inputs[targetKey] = value;
+        }
+      } else if (connection.to.input) {
+        const value = this.resolveValue(connection.to.value, context.flow);
+        inputs[connection.to.input] = value;
+      }
     }
 
     return inputs;
