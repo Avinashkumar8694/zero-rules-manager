@@ -43,13 +43,8 @@ export class FlowExecutionService {
 
   async executeFlow(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
     try {
-      // Validate inputs against version's inputColumns
       this.validateInputs(version, inputs);
-
-      // Initialize flow variables with default values
       const flowVariables = this.initializeFlowVariables(version);
-
-      // Create execution context with inputs and flow variables
       const context = {
         flow: {
           ...inputs,
@@ -57,32 +52,28 @@ export class FlowExecutionService {
         }
       };
 
-      // Execute nodes in topological order
       const executedNodes = new Set<string>();
       const nodeResults: Record<string, any> = {};
 
-      // Keep executing nodes until all nodes are processed
       while (executedNodes.size < version.flowConfig.nodes.length) {
-        for (const node of version.flowConfig.nodes) {
-          if (executedNodes.has(node.id)) continue;
+        const executionPromises = version.flowConfig.nodes.map(async (node) => {
+          if (executedNodes.has(node.id)) return;
 
-          // Check if all input nodes are executed
           const inputNodes = this.getInputNodes(node.id, version.flowConfig.connections);
-          if (!this.areInputNodesExecuted(inputNodes, executedNodes)) continue;
+          if (!this.areInputNodesExecuted(inputNodes, executedNodes)) return;
 
-          // Execute node
           const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
           const nodeResult = await this.executeNode(node, nodeInputs);
 
-          // Update context with node results
           nodeResults[node.id] = nodeResult;
           this.updateContext(context, node, nodeResult, version.flowConfig.connections);
 
           executedNodes.add(node.id);
-        }
+        });
+
+        await Promise.all(executionPromises);
       }
 
-      // Map flow variables to output columns
       return this.mapOutputs(version, context.flow);
     } catch (error) {
       throw new Error(`Failed to execute flow version: ${error.message}`);
@@ -151,7 +142,6 @@ export class FlowExecutionService {
   ): Record<string, any> {
     const inputs: Record<string, any> = {};
 
-    // Map inputs from flow variables using input_mapping
     for (const [targetKey, sourcePath] of Object.entries(node.config.input_mapping)) {
       const value = this.resolveValue(sourcePath, context.flow);
       inputs[targetKey] = value;
@@ -167,7 +157,6 @@ export class FlowExecutionService {
     switch (node.type) {
       case 'excel':
         if (node.config.mode === 'reference' && node.config.version_id) {
-          // Execute referenced Excel version
           const referencedVersion = await this.getReferencedVersion(node.config.version_id);
           if (!referencedVersion || !referencedVersion.filePath) {
             throw new Error('Referenced Excel version not found or invalid');
@@ -180,7 +169,6 @@ export class FlowExecutionService {
 
       case 'code':
         if (node.config.mode === 'reference' && node.config.version_id) {
-          // Execute referenced Code version
           const referencedVersion = await this.getReferencedVersion(node.config.version_id);
           if (!referencedVersion) {
             throw new Error('Referenced Code version not found');
@@ -207,7 +195,6 @@ export class FlowExecutionService {
     nodeResult: Record<string, any>,
     connections: RuleVersion['flowConfig']['connections']
   ) {
-    // Update flow variables based on output_mapping
     for (const [sourcePath, targetPath] of Object.entries(node.config.output_mapping)) {
       context['flow'] = {
         ...context['flow'],
@@ -218,11 +205,9 @@ export class FlowExecutionService {
       this.setValueByPath(context.flow, targetPath, value);
     }
 
-    // Process connections with transforms
     for (const connection of connections) {
       if (connection.transform) {
-        // Handle transform logic
-        // This would require implementing a safe way to evaluate transform expressions
+        this.handleTransform(connection, context);
       }
     }
   }
@@ -259,5 +244,33 @@ export class FlowExecutionService {
       }
     }
     return outputs;
+  }
+
+  private evaluateCondition(condition: string, context: { flow: Record<string, any> }): boolean {
+    try {
+      const conditionFunction = new Function('context', `with (context) { return ${condition}; }`);
+      return conditionFunction(context.flow);
+    } catch (error) {
+      console.error('Error evaluating condition:', error);
+      return false;
+    }
+  }
+
+  private synchronizeResults(context: { flow: Record<string, any> }, nodeResults: Record<string, any>) {
+    for (const [nodeId, result] of Object.entries(nodeResults)) {
+      for (const [key, value] of Object.entries(result)) {
+        this.setValueByPath(context.flow, `$.flow.${key}`, value);
+      }
+    }
+  }
+
+  private handleTransform(connection: RuleVersion['flowConfig']['connections'][0], context: { flow: Record<string, any> }) {
+    try {
+      const transformFunction = new Function('context', `with (context) { return ${connection.transform}; }`);
+      const transformedValue = transformFunction(context.flow);
+      this.setValueByPath(context.flow, connection.to.input, transformedValue);
+    } catch (error) {
+      console.error('Error handling transform:', error);
+    }
   }
 }

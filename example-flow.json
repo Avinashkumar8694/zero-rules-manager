@@ -33,8 +33,148 @@
                         ]
                     }
                 }
+            },
+            {
+                "id": "code-1",
+                "type": "code",
+                "config": {
+                    "mode": "inline",
+                    "code": "return { status: 'APPROVED', credit: 750 };",
+                    "input_mapping": {
+                        "status": "$.flow.initial_status",
+                        "credit": "$.flow.credit_rating"
+                    },
+                    "output_mapping": {
+                        "$.flow.status": "status",
+                        "$.flow.credit": "credit"
+                    },
+                    "metadata": {
+                        "name": "Credit Check",
+                        "description": "Performs credit check",
+                        "tags": [
+                            "credit",
+                            "check"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "version-1",
+                "type": "code",
+                "config": {
+                    "mode": "inline",
+                    "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
+                    "input_mapping": {
+                        "risk_score": "$.flow.risk_score",
+                        "compliance_score": "$.flow.compliance_score"
+                    },
+                    "output_mapping": {
+                        "$.flow.combined_score": "combined_score"
+                    },
+                    "metadata": {
+                        "name": "Score Aggregator",
+                        "description": "Aggregates risk and compliance scores",
+                        "tags": [
+                            "score",
+                            "aggregation"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "notification-1",
+                "type": "code",
+                "config": {
+                    "mode": "inline",
+                    "code": "console.log('Notification sent with status:', status);",
+                    "input_mapping": {
+                        "status": "$.flow.approval_status"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Notification Sender",
+                        "description": "Sends notification",
+                        "tags": [
+                            "notification",
+                            "send"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "audit-1",
+                "type": "code",
+                "config": {
+                    "mode": "inline",
+                    "code": "console.log('Audit logged with decision:', decision);",
+                    "input_mapping": {
+                        "decision": "$.flow.approval_status"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Audit Logger",
+                        "description": "Logs audit decision",
+                        "tags": [
+                            "audit",
+                            "log"
+                        ]
+                    }
+                }
             }
         ],
-        "connections": []
+        "connections": [
+            {
+                "from": {
+                    "node": "excel-1",
+                    "outputs": {
+                        "$.flow.initial_status": "$.OP_STATUS",
+                        "$.flow.credit_rating": "$.OP_CREDIT"
+                    }
+                },
+                "to": {
+                    "node": "code-1",
+                    "inputs": {
+                        "status": "$.flow.initial_status",
+                        "credit": "$.flow.credit_rating"
+                    }
+                },
+                "condition": "$.flow.initial_status !== 'REJECTED'"
+            },
+            {
+                "from": [
+                    {
+                        "node": "excel-1",
+                        "output": "$.flow.risk_score"
+                    },
+                    {
+                        "node": "code-1",
+                        "output": "$.flow.compliance_score"
+                    }
+                ],
+                "to": {
+                    "node": "version-1",
+                    "input": "$.flow.combined_score",
+                    "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
+                }
+            },
+            {
+                "from": {
+                    "node": "version-1",
+                    "output": "$.flow.approval_status"
+                },
+                "to": [
+                    {
+                        "node": "notification-1",
+                        "input": "status",
+                        "value": "$.flow.approval_status"
+                    },
+                    {
+                        "node": "audit-1",
+                        "input": "decision",
+                        "value": "$.flow.approval_status"
+                    }
+                ]
+            }
+        ]
     }
 }
