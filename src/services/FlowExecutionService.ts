@@ -127,7 +127,7 @@ export class FlowExecutionService {
     for (const connection of connections) {
       if (Array.isArray(connection.to)) {
         for (const target of connection.to) {
-          if (target.node === nodeId) {
+          if ((target as { node: string }).node === nodeId) {
             if (Array.isArray(connection.from)) {
               connection.from.forEach(source => inputNodes.add(source.node));
             } else {
@@ -166,7 +166,7 @@ export class FlowExecutionService {
     // Handle connection inputs and input properly based on whether it is object or array
     const nodeConnections = connections.filter(connection => {
       if (Array.isArray(connection.to)) {
-        return connection.to.some(target => target.node === node.id);
+        return connection.to.some(target => (target as { node: string }).node === node.id);
       }
       return connection.to.node === node.id;
     });
@@ -317,7 +317,17 @@ export class FlowExecutionService {
     try {
       const transformFunction = new Function('context', `with (context) { return ${connection.transform}; }`);
       const transformedValue = transformFunction(context.flow);
-      this.setValueByPath(context.flow, connection.to.input!, transformedValue);
+      if (Array.isArray(connection.to)) {
+        for (const target of connection.to) {
+          if (target.input) {
+            this.setValueByPath(context.flow, target.input, transformedValue);
+          }
+        }
+      } else {
+        if (connection.to.input) {
+          this.setValueByPath(context.flow, connection.to.input, transformedValue);
+        }
+      }
     } catch (error) {
       console.error('Error handling transform:', error);
     }
