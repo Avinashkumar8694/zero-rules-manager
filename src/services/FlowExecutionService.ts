@@ -41,14 +41,18 @@ export class FlowExecutionService {
     }
   }
 
-  async executeFlow(version: RuleVersion, inputs: Record<string, any>): Promise<Record<string, any>> {
+  async executeFlow(version: RuleVersion, inputs: Record<string, any>, req?: any, res?: any): Promise<Record<string, any>> {
     try {
       this.validateInputs(version, inputs);
       const flowVariables = this.initializeFlowVariables(version);
       const context = {
         flow: {
           ...inputs,
-          ...flowVariables
+          ...flowVariables,
+          web: {
+            req,
+            res
+          }
         }
       };
 
