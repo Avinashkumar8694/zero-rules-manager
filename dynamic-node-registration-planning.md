@@ -26,253 +26,7 @@ Dynamic node registration allows nodes to be registered dynamically in the syste
 
 3. **onCleanup**: Called when the node is cleaned up. This method can be used to release any resources or perform any necessary cleanup tasks.
 
-## Example Code Snippets for Dynamic Node Registration
 
-### Node Interface
-```typescript
-interface Node {
-  onInit(): void;
-  onExecute(input: any): any;
-  onCleanup(): void;
-}
-```
-
-### Node Registry
-```typescript
-class NodeRegistry {
-  private nodes: Map<string, Node> = new Map();
-
-  registerNode(id: string, node: Node): void {
-    this.nodes.set(id, node);
-  }
-
-  getNode(id: string): Node | undefined {
-    return this.nodes.get(id);
-  }
-
-  removeNode(id: string): void {
-    this.nodes.delete(id);
-  }
-}
-```
-
-### Dynamic Injection
-```typescript
-async function loadNode(url: string): Promise<Node> {
-  const module = await import(url);
-  return module.default as Node;
-}
-
-async function registerNode(url: string, registry: NodeRegistry, id: string): Promise<void> {
-  const node = await loadNode(url);
-  registry.registerNode(id, node);
-  node.onInit();
-}
-```
-
-### Example Node Implementation
-```typescript
-class ExampleNode implements Node {
-  onInit(): void {
-    console.log('Node initialized');
-  }
-
-  onExecute(input: any): any {
-    console.log('Node executed with input:', input);
-    return { result: 'success' };
-  }
-
-  onCleanup(): void {
-    console.log('Node cleaned up');
-  }
-}
-
-// Registering the example node
-const registry = new NodeRegistry();
-const exampleNode = new ExampleNode();
-registry.registerNode('exampleNode', exampleNode);
-exampleNode.onInit();
-```
-
-### Error Handling
-```typescript
-try {
-  await registerNode('path/to/node.js', registry, 'dynamicNode');
-} catch (error) {
-  console.error('Failed to register node:', error);
-}
-```
-
-### Security Considerations
-```typescript
-function validateNodeSource(url: string): boolean {
-  // Implement validation logic to ensure the node source is trusted
-  return true;
-}
-
-async function secureRegisterNode(url: string, registry: NodeRegistry, id: string): Promise<void> {
-  if (!validateNodeSource(url)) {
-    throw new Error('Untrusted node source');
-  }
-  const node = await loadNode(url);
-  registry.registerNode(id, node);
-  node.onInit();
-}
-```
-
-## Detailed and Advanced Plan for Dynamic Node Registration
-
-### Advanced Node Interface
-Extend the basic node interface to include additional lifecycle methods and metadata support.
-
-```typescript
-interface AdvancedNode extends Node {
-  onBeforeExecute(input: any): void;
-  onAfterExecute(output: any): void;
-  getMetadata(): Record<string, any>;
-}
-```
-
-### Enhanced Node Registry
-Enhance the node registry to support advanced features like metadata retrieval and node versioning.
-
-```typescript
-class EnhancedNodeRegistry {
-  private nodes: Map<string, { node: AdvancedNode, version: string }> = new Map();
-
-  registerNode(id: string, node: AdvancedNode, version: string): void {
-    this.nodes.set(id, { node, version });
-  }
-
-  getNode(id: string): AdvancedNode | undefined {
-    return this.nodes.get(id)?.node;
-  }
-
-  getNodeVersion(id: string): string | undefined {
-    return this.nodes.get(id)?.version;
-  }
-
-  getNodeMetadata(id: string): Record<string, any> | undefined {
-    return this.nodes.get(id)?.node.getMetadata();
-  }
-
-  removeNode(id: string): void {
-    this.nodes.delete(id);
-  }
-}
-```
-
-### Advanced Dynamic Injection
-Support versioning and metadata during dynamic injection.
-
-```typescript
-async function loadAdvancedNode(url: string): Promise<AdvancedNode> {
-  const module = await import(url);
-  return module.default as AdvancedNode;
-}
-
-async function registerAdvancedNode(url: string, registry: EnhancedNodeRegistry, id: string, version: string): Promise<void> {
-  const node = await loadAdvancedNode(url);
-  registry.registerNode(id, node, version);
-  node.onInit();
-}
-```
-
-### Example Advanced Node Implementation
-```typescript
-class AdvancedExampleNode implements AdvancedNode {
-  onInit(): void {
-    console.log('Advanced node initialized');
-  }
-
-  onBeforeExecute(input: any): void {
-    console.log('Before execute with input:', input);
-  }
-
-  onExecute(input: any): any {
-    console.log('Node executed with input:', input);
-    return { result: 'success' };
-  }
-
-  onAfterExecute(output: any): void {
-    console.log('After execute with output:', output);
-  }
-
-  onCleanup(): void {
-    console.log('Node cleaned up');
-  }
-
-  getMetadata(): Record<string, any> {
-    return {
-      name: 'Advanced Example Node',
-      description: 'An example of an advanced node implementation',
-      version: '1.0.0'
-    };
-  }
-}
-
-// Registering the advanced example node
-const enhancedRegistry = new EnhancedNodeRegistry();
-const advancedExampleNode = new AdvancedExampleNode();
-enhancedRegistry.registerNode('advancedExampleNode', advancedExampleNode, '1.0.0');
-advancedExampleNode.onInit();
-```
-
-### Advanced Error Handling
-Implement advanced error handling mechanisms to support retries and custom error handlers.
-
-```typescript
-async function registerNodeWithRetry(url: string, registry: EnhancedNodeRegistry, id: string, version: string, retries: number = 3): Promise<void> {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      await registerAdvancedNode(url, registry, id, version);
-      return;
-    } catch (error) {
-      console.error(`Failed to register node (attempt ${attempt}):`, error);
-      if (attempt === retries) {
-        throw new Error('Max retries reached');
-      }
-    }
-  }
-}
-
-function customErrorHandler(error: Error): void {
-  console.error('Custom error handler:', error);
-}
-
-// Usage
-try {
-  await registerNodeWithRetry('path/to/advanced-node.js', enhancedRegistry, 'advancedDynamicNode', '1.0.0');
-} catch (error) {
-  customErrorHandler(error);
-}
-```
-
-### Security Enhancements
-Enhance security by implementing sandboxing and strict validation of node sources.
-
-```typescript
-function validateAdvancedNodeSource(url: string): boolean {
-  // Implement strict validation logic to ensure the node source is trusted
-  return url.startsWith('https://trusted-source.com/');
-}
-
-async function secureRegisterAdvancedNode(url: string, registry: EnhancedNodeRegistry, id: string, version: string): Promise<void> {
-  if (!validateAdvancedNodeSource(url)) {
-    throw new Error('Untrusted node source');
-  }
-  const node = await loadAdvancedNode(url);
-  registry.registerNode(id, node, version);
-  node.onInit();
-}
-
-// Usage
-try {
-  await secureRegisterAdvancedNode('https://trusted-source.com/advanced-node.js', enhancedRegistry, 'secureDynamicNode', '1.0.0');
-} catch (error) {
-  customErrorHandler(error);
-}
-```
 
 ### Comprehensive Plan for Dynamic Node Registration
 1. **Define Advanced Node Interface**: Extend the basic node interface to include additional lifecycle methods and metadata support.
@@ -305,23 +59,51 @@ export default class MyNode {
   }
 
   getConfig() {
-    return {
-      id: 'myNode',
-      type: 'custom',
-      input_mapping: {
-        input1: '$.flow.input1',
-        input2: '$.flow.input2'
+  return {
+    id: 'myNode',
+    type: 'custom',
+
+    inputs: [
+      {
+        key: 'input1',
+        label: 'Input 1',
+        type: 'string',
+        required: true,
+        default: '',
+        mapping: '$.flow.input1',
+        description: 'Enter the first input value'
       },
-      output_mapping: {
-        '$.flow.output': 'result'
-      },
-      metadata: {
-        name: 'My Custom Node',
-        description: 'A custom node implementation',
-        tags: ['custom', 'example']
+      {
+        key: 'input2',
+        label: 'Input 2',
+        type: 'string',
+        required: false,
+        default: '',
+        mapping: '$.flow.input2',
+        description: 'Enter the second input value'
       }
-    };
-  }
+    ],
+
+    outputs: [
+      {
+        key: 'result',
+        label: 'Result',
+        type: 'object',
+        description: 'Final output from execution',
+        mapping: '$.flow.output'
+      }
+    ],
+
+    metadata: {
+      name: 'My Custom Node',
+      description: 'A custom node implementation',
+      tags: ['custom', 'example'],
+      icon: 'fas fa-cogs',
+      category: 'Data Processing'
+    }
+  };
+}
+
 }
 ```
 
@@ -435,25 +217,51 @@ export default class HttpRequestNode {
   }
 
   getConfig() {
-    return {
-      id: 'httpRequestNode',
-      type: 'http',
-      input_mapping: {
-        method: '$.flow.method',
-        url: '$.flow.url',
-        headers: '$.flow.headers',
-        data: '$.flow.data'
+  return {
+    id: 'myNode',
+    type: 'custom',
+
+    inputs: [
+      {
+        key: 'input1',
+        label: 'Input 1',
+        type: 'string',
+        required: true,
+        default: '',
+        mapping: '$.flow.input1',
+        description: 'Enter the first input value'
       },
-      output_mapping: {
-        '$.flow.response': 'result'
-      },
-      metadata: {
-        name: 'HTTP Request Node',
-        description: 'Sends an HTTP request and processes the response',
-        tags: ['http', 'request']
+      {
+        key: 'input2',
+        label: 'Input 2',
+        type: 'string',
+        required: false,
+        default: '',
+        mapping: '$.flow.input2',
+        description: 'Enter the second input value'
       }
-    };
-  }
+    ],
+
+    outputs: [
+      {
+        key: 'result',
+        label: 'Result',
+        type: 'object',
+        description: 'Final output from execution',
+        mapping: '$.flow.output'
+      }
+    ],
+
+    metadata: {
+      name: 'My Custom Node',
+      description: 'A custom node implementation',
+      tags: ['custom', 'example'],
+      icon: 'fas fa-cogs',
+      category: 'Data Processing'
+    }
+  };
+}
+
 }
 ```
 
