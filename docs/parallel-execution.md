@@ -18,67 +18,65 @@ Parallel flow execution enables multiple paths of execution from a single node, 
 3. Dependent nodes wait for all incoming connections to complete
 4. Results are synchronized using updateContext and synchronizeResults
 
-## Connection Types
-
-### Unconditional Parallel
+### Connection Definition
 ```json
 {
   "connections": [
     {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-2" }
+      "from": {
+        "node": "excel-1",
+        "outputs": {
+          "$.flow.initial_status": "$.OP_STATUS",
+          "$.flow.credit_rating": "$.OP_CREDIT"  // Outputs directly to flow variables
+        }
+      },
+      "to": {
+        "node": "code-1",
+        "inputs": {  // Using flow variables as inputs
+          "status": "$.flow.initial_status",
+          "credit": "$.flow.credit_rating"
+        }
+      },
+      "condition": "$.flow.initial_status !== 'REJECTED'"  // Conditions using flow variables
     },
     {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-3" }
+      "from": [  // Multiple source nodes updating flow variables
+        {
+          "node": "excel-1",
+          "output": "$.flow.risk_score"
+        },
+        {
+          "node": "code-1",
+          "output": "$.flow.compliance_score"
+        }
+      ],
+      "to": {
+        "node": "version-1",
+        "input": "$.flow.combined_score",  // Store result in flow variable
+        "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"  // Transform using flow variables
+      }
+    },
+    {
+      "from": {
+        "node": "version-1",
+        "output": "$.flow.approval_status"  // Store in flow variable
+      },
+      "to": [  // Broadcasting flow variable to multiple nodes
+        {
+          "node": "notification-1",
+          "input": "status",
+          "value": "$.flow.approval_status"
+        },
+        {
+          "node": "audit-1",
+          "input": "decision",
+          "value": "$.flow.approval_status"
+        }
+      ]
     }
   ]
 }
 ```
-- Both paths execute when node-1 completes
-- No conditions to evaluate
-- Results available independently
-
-### Conditional Parallel
-```json
-{
-  "connections": [
-    {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-2" },
-      "condition": "$.flow.risk_score > 700"
-    },
-    {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-3" },
-      "condition": "$.flow.credit_score < 600"
-    }
-  ]
-}
-```
-- Each path evaluated independently
-- Multiple conditions can be true simultaneously
-- Paths execute only when conditions are met
-
-### Mixed Parallel
-```json
-{
-  "connections": [
-    {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-2" },
-      "condition": "$.flow.risk_score > 700"
-    },
-    {
-      "from": { "node": "node-1" },
-      "to": { "node": "node-3" }
-    }
-  ]
-}
-```
-- Combines conditional and unconditional paths
-- Unconditional paths always execute
-- Conditional paths execute based on evaluation
 
 ## Execution Scenarios
 
@@ -92,7 +90,7 @@ Parallel flow execution enables multiple paths of execution from a single node, 
 1. Source node completes execution
 2. Some conditions evaluate to false
 3. Only valid paths execute
-4. System tracks completed paths
+ 4. System tracks completed paths
 
 ### Scenario 3: No Valid Paths
 1. Source node completes execution
@@ -107,128 +105,311 @@ Parallel flow execution enables multiple paths of execution from a single node, 
 4. Other paths continue execution
 5. Error propagated to error handling system
 
-## Implementation Details
+## How Parallel Execution Works with Conditions and Transforms
 
-### Connection Evaluation
-```typescript
-interface Connection {
-  from: NodeReference;
-  to: NodeReference;
-  condition?: string;
-}
+### Conditions
+Conditions are evaluated before executing a connection. If the condition evaluates to true, the connection is followed, and the target node is executed. If the condition evaluates to false, the connection is skipped, and the target node is not executed.
 
-interface ExecutionContext {
-  flowVariables: Record<string, any>;
-  nodeResults: Record<string, any>;
-}
+### Transforms
+Transforms are applied to the data being passed through a connection. The transform logic is defined in the connection definition and is executed to modify the data before it is passed to the target node. This allows for dynamic data manipulation and ensures that the target node receives the correct input format.
 
-function evaluateConnection(connection: Connection, context: ExecutionContext): boolean {
-  if (!connection.condition) {
-    return true;
-  }
-  return evaluateCondition(connection.condition, context);
-}
+## Sample cURL Command for Parallel Execution with Conditions
+
+```sh
+curl -X POST http://localhost:3000/api/execute/your-category-id \
+  -H "Content-Type: application/json" \
+  -d '{
+        "policy_premium": 1000,
+        "initial_status": "APPROVED",
+        "credit_rating": 750
+      }'
 ```
 
-### Parallel Execution
-```typescript
-async function executeParallelPaths(
-  connections: Connection[],
-  context: ExecutionContext
-): Promise<void> {
-  const validConnections = connections.filter(conn => 
-    evaluateConnection(conn, context)
-  );
+## Step-by-Step Execution Handling
 
-  const executionPromises = validConnections.map(conn =>
-    executeNode(conn.to.node, context)
-  );
+1. **Initialization**: The flow execution starts by initializing the context with input parameters and flow variables.
+2. **Node Execution**: Nodes are executed in topological order. For each node:
+   - Input nodes are identified using `getInputNodes`.
+   - Conditions for connections are evaluated using `evaluateCondition`.
+   - If conditions are met, the node is executed.
+   - Results are stored in the context.
+3. **Parallel Execution**: Parallel paths are executed concurrently using `Promise.all`.
+4. **Synchronization**: Dependent nodes wait for all incoming connections to complete. Results are synchronized using `updateContext` and `synchronizeResults`.
+5. **Transforms**: Transform logic is applied to modify data before passing it to the target node using `handleTransform`.
+6. **Completion**: The flow execution completes when all nodes have been executed and results are synchronized.
 
-  await Promise.all(executionPromises);
-}
+## Complete cURL for Flow Version Creation
+
+```sh
+curl -X POST http://localhost:3000/api/categories/your-category-id/versions/flow \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Flow Version 1",
+        "description": "Sample flow version",
+        "type": "flow",
+        "inputColumns": {
+          "policy_premium": {
+            "type": "number"
+          }
+        },
+        "outputColumns": {
+          "result": {
+            "type": "number"
+          }
+        },
+        "variables": {
+          "initial_status": {
+            "type": "string",
+            "default": "PENDING"
+          },
+          "credit_rating": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "flow": {
+          "nodes": [
+            {
+              "id": "excel-1",
+              "type": "excel",
+              "config": {
+                "mode": "inline",
+                "excel_file": "example.xlsx",
+                "input_mapping": {
+                  "IP_policy_premium": "$.flow.policy_premium"
+                },
+                "output_mapping": {
+                  "$.flow.result": "$.OP_result"
+                },
+                "metadata": {
+                  "name": "Premium Calculator",
+                  "description": "Calculates premium based on input",
+                  "tags": [
+                    "premium",
+                    "calculation"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "code-1",
+              "type": "code",
+              "config": {
+                "mode": "inline",
+                "code": "return { status: 'APPROVED', credit: 750 };",
+                "input_mapping": {
+                  "status": "$.flow.initial_status",
+                  "credit": "$.flow.credit_rating"
+                },
+                "output_mapping": {
+                  "$.flow.status": "status",
+                  "$.flow.credit": "credit"
+                },
+                "metadata": {
+                  "name": "Credit Check",
+                  "description": "Performs credit check",
+                  "tags": [
+                    "credit",
+                    "check"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "version-1",
+              "type": "code",
+              "config": {
+                "mode": "inline",
+                "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
+                "input_mapping": {
+                  "risk_score": "$.flow.risk_score",
+                  "compliance_score": "$.flow.compliance_score"
+                },
+                "output_mapping": {
+                  "$.flow.combined_score": "combined_score"
+                },
+                "metadata": {
+                  "name": "Score Aggregator",
+                  "description": "Aggregates risk and compliance scores",
+                  "tags": [
+                    "score",
+                    "aggregation"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "notification-1",
+              "type": "code",
+              "config": {
+                "mode": "inline",
+                "code": "console.log('Notification sent with status:', status);",
+                "input_mapping": {
+                  "status": "$.flow.approval_status"
+                },
+                "output_mapping": {},
+                "metadata": {
+                  "name": "Notification Sender",
+                  "description": "Sends notification",
+                  "tags": [
+                    "notification",
+                    "send"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "audit-1",
+              "type": "code",
+              "config": {
+                "mode": "inline",
+                "code": "console.log('Audit logged with decision:', decision);",
+                "input_mapping": {
+                  "decision": "$.flow.approval_status"
+                },
+                "output_mapping": {},
+                "metadata": {
+                  "name": "Audit Logger",
+                  "description": "Logs audit decision",
+                  "tags": [
+                    "audit",
+                    "log"
+                  ]
+                }
+              }
+            }
+          ],
+          "connections": [
+            {
+              "from": {
+                "node": "excel-1",
+                "outputs": {
+                  "$.flow.initial_status": "$.OP_STATUS",
+                  "$.flow.credit_rating": "$.OP_CREDIT"
+                }
+              },
+              "to": {
+                "node": "code-1",
+                "inputs": {
+                  "status": "$.flow.initial_status",
+                  "credit": "$.flow.credit_rating"
+                }
+              },
+              "condition": "$.flow.initial_status !== 'REJECTED'"
+            },
+            {
+              "from": [
+                {
+                  "node": "excel-1",
+                  "output": "$.flow.risk_score"
+                },
+                {
+                  "node": "code-1",
+                  "output": "$.flow.compliance_score"
+                }
+              ],
+              "to": {
+                "node": "version-1",
+                "input": "$.flow.combined_score",
+                "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
+              }
+            },
+            {
+              "from": {
+                "node": "version-1",
+                "output": "$.flow.approval_status"
+              },
+              "to": [
+                {
+                  "node": "notification-1",
+                  "input": "status",
+                  "value": "$.flow.approval_status"
+                },
+                {
+                  "node": "audit-1",
+                  "input": "decision",
+                  "value": "$.flow.approval_status"
+                }
+              ]
+            }
+          ]
+        }
+      }'
 ```
 
-### Variable Context Management
-```typescript
-interface ExecutionContext {
-  flow: Record<string, any>;
-  nodeResults: Record<string, any>;
-}
+## How Transforms are Executed and Passed Inside the Next Node as Input
 
-function initializeContext(inputs: Record<string, any>, flowVariables: Record<string, any>): ExecutionContext {
-  return {
-    flow: {
-      ...inputs,
-      ...flowVariables
+Transforms are defined in the connection definition and are executed to modify the data before it is passed to the target node. The transform logic is applied to the data being passed through the connection, ensuring that the target node receives the correct input format.
+
+### Example
+In the following connection definition, a transform is applied to combine the risk score and compliance score before passing it to the target node:
+
+```json
+{
+  "from": [
+    {
+      "node": "excel-1",
+      "output": "$.flow.risk_score"
     },
-    nodeResults: {}
-  };
-}
-
-function updateContext(
-  context: ExecutionContext,
-  node: FlowNode,
-  nodeResult: Record<string, any>
-): void {
-  // Update flow variables based on output_mapping
-  for (const [sourcePath, targetPath] of Object.entries(node.config.output_mapping)) {
-    const value = resolveValue(sourcePath, context.flow);
-    setValueByPath(context.flow, targetPath, value);
+    {
+      "node": "code-1",
+      "output": "$.flow.compliance_score"
+    }
+  ],
+  "to": {
+    "node": "version-1",
+    "input": "$.flow.combined_score",
+    "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
   }
-  
-  // Store node results for reference
-  context.nodeResults[node.id] = nodeResult;
-}
-
-function resolveValue(path: string, context: Record<string, any>): any {
-  const parts = path.replace('$.flow.', '').split('.');
-  let value = context;
-  for (const part of parts) {
-    value = value[part];
-    if (value === undefined) break;
-  }
-  return value;
 }
 ```
 
-## Best Practices
+In this example, the transform logic `($.flow.risk_score + $.flow.compliance_score) / 2` is executed to calculate the combined score, which is then passed to the `version-1` node as the input `$.flow.combined_score`.
 
-### Flow Design
-1. Keep conditions simple and independent
-2. Avoid circular dependencies
-3. Plan for error scenarios
-4. Document expected parallel paths
+## Handling Connections with Both Input and Inputs
 
-### Performance
-1. Monitor execution times
-2. Optimize condition evaluation
-3. Handle resource constraints
-4. Implement timeouts
+When a connection's `to` property has both `input` and `inputs`, the system processes them as follows:
 
-### Testing
-1. Test all condition combinations
-2. Verify parallel execution
-3. Validate result synchronization
-4. Check error propagation
+1. **Single Input**: If the `input` property is present, the value is directly assigned to the specified input of the target node.
+2. **Multiple Inputs**: If the `inputs` property is present, the values are mapped to the corresponding inputs of the target node.
 
-## Future Enhancements
+### Example
+In the following connection definition, both `input` and `inputs` are used:
 
-### Priority Execution
-- Add priority levels to connections
-- Control execution order of parallel paths
-- Support resource allocation
+```json
+{
+  "from": {
+    "node": "version-1",
+    "output": "$.flow.approval_status"
+  },
+  "to": [
+    {
+      "node": "notification-1",
+      "input": "status",
+      "value": "$.flow.approval_status"
+    },
+    {
+      "node": "audit-1",
+      "inputs": {
+        "decision": "$.flow.approval_status",
+        "timestamp": "$.flow.timestamp"
+      }
+    }
+  ]
+}
+```
 
-### Advanced Conditions
-- Support complex condition expressions
-- Add custom condition functions
-- Enable dynamic condition evaluation
+In this example:
+- The `notification-1` node receives the `$.flow.approval_status` value as the `status` input.
+- The `audit-1` node receives the `$.flow.approval_status` value as the `decision` input and the `$.flow.timestamp` value as the `timestamp` input.
 
-### Monitoring
-- Track parallel execution metrics
-- Monitor resource usage
-- Alert on execution issues
+## Mermaid Diagram for Flow Version Nodes
 
-### Flow Control
-- Pause/resume parallel execution
-- Cancel specific paths
-- Dynamic path selection
+```mermaid
+graph TD
+  A[excel-1] -->|$.flow.initial_status !== 'REJECTED'| B[code-1]
+  A --> C[version-1]
+  B --> C
+  C --> D[notification-1]
+  C --> E[audit-1]
+```
