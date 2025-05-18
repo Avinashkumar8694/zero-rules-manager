@@ -76,11 +76,14 @@ export class RuleVersion {
       }>;
       to: {
         node: string;
-        inputs: Record<string, string>;
+        inputs?: Record<string, string>;
+        input?: string;
+        value?: string;
       } | Array<{
         node: string;
-        input: string;
-        value: string;
+        input?: string;
+        inputs?: Record<string, string>;
+        value?: string;
       }>;
       condition?: string;
       transform?: string;
