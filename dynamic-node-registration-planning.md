@@ -694,22 +694,50 @@ export default class MyNode {
 
   getConfig() {
     return {
-      id: 'myNode',
-      type: 'custom',
-      input_mapping: {
-        input1: '$.flow.input1',
-        input2: '$.flow.input2'
-      },
-      output_mapping: {
-        '$.flow.output': 'result'
-      },
-      metadata: {
+        id: 'myNode',
+        type: 'custom',
+
+        inputs: [
+        {
+            key: 'input1',
+            label: 'Input 1',
+            type: 'string',
+            required: true,
+            default: '',
+            mapping: '$.flow.input1',
+            description: 'Enter the first input value'
+        },
+        {
+            key: 'input2',
+            label: 'Input 2',
+            type: 'string',
+            required: false,
+            default: '',
+            mapping: '$.flow.input2',
+            description: 'Enter the second input value'
+        }
+        ],
+
+        outputs: [
+        {
+            key: 'result',
+            label: 'Result',
+            type: 'object',
+            description: 'Final output from execution',
+            mapping: '$.flow.output'
+        }
+        ],
+
+        metadata: {
         name: 'My Custom Node',
         description: 'A custom node implementation',
-        tags: ['custom', 'example']
-      }
+        tags: ['custom', 'example'],
+        icon: 'fas fa-cogs',
+        category: 'Data Processing'
+        }
     };
-  }
+    }
+
 }
 ```
 
@@ -770,25 +798,51 @@ export default class HttpRequestNode {
   }
 
   getConfig() {
-    return {
-      id: 'httpRequestNode',
-      type: 'http',
-      input_mapping: {
-        method: '$.flow.method',
-        url: '$.flow.url',
-        headers: '$.flow.headers',
-        data: '$.flow.data'
+  return {
+    id: 'myNode',
+    type: 'custom',
+
+    inputs: [
+      {
+        key: 'input1',
+        label: 'Input 1',
+        type: 'string',
+        required: true,
+        default: '',
+        mapping: '$.flow.input1',
+        description: 'Enter the first input value'
       },
-      output_mapping: {
-        '$.flow.response': 'result'
-      },
-      metadata: {
-        name: 'HTTP Request Node',
-        description: 'Sends an HTTP request and processes the response',
-        tags: ['http', 'request']
+      {
+        key: 'input2',
+        label: 'Input 2',
+        type: 'string',
+        required: false,
+        default: '',
+        mapping: '$.flow.input2',
+        description: 'Enter the second input value'
       }
-    };
-  }
+    ],
+
+    outputs: [
+      {
+        key: 'result',
+        label: 'Result',
+        type: 'object',
+        description: 'Final output from execution',
+        mapping: '$.flow.output'
+      }
+    ],
+
+    metadata: {
+      name: 'My Custom Node',
+      description: 'A custom node implementation',
+      tags: ['custom', 'example'],
+      icon: 'fas fa-cogs',
+      category: 'Data Processing'
+    }
+  };
+}
+
 }
 ```
 
