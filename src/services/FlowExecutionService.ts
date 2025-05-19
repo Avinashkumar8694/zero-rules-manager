@@ -59,37 +59,56 @@ export class FlowExecutionService {
       const executedNodes = new Set<string>();
       const nodeResults: Record<string, any> = {};
 
-      while (executedNodes.size < version.flowConfig.nodes.length) {
-        const executionPromises = version.flowConfig.nodes.map(async (node) => {
-          if (executedNodes.has(node.id)) return;
+      const getExecutableNodes = () => {
+        // If no nodes have been executed yet, only start nodes are executable
+        if (executedNodes.size === 0) {
+          return version.flowConfig.nodes.filter(node => node.type === 'start');
+        }
 
+        return version.flowConfig.nodes.filter(node => {
+          // Skip already executed nodes
+          if (executedNodes.has(node.id)) return false;
+          
+          // Get input nodes and check if they're executed
           const inputNodes = this.getInputNodes(node.id, version.flowConfig.connections);
-          if (!this.areInputNodesExecuted(inputNodes, executedNodes)) return;
-
-          const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
-
-          // Evaluate conditions before executing the node
+          if (!this.areInputNodesExecuted(inputNodes, executedNodes)) return false;
+          
+          // Get incoming connections
           const connections = version.flowConfig.connections.filter(connection => {
             if (Array.isArray(connection.to)) {
               return connection.to.some(target => target.node === node.id);
             }
             return connection.to.node === node.id;
           });
-          for (const connection of connections) {
-            if (connection.condition && !this.evaluateCondition(connection.condition, context)) {
-              return;
-            }
-          }
+          
+          // Node must have at least one connection from an executed node
+          if (connections.length === 0) return false;
+          
+          // Check if all conditions are satisfied
+          return connections.every(connection => {
+            return !connection.condition || this.evaluateCondition(connection.condition, context);
+          });
+        });
+      };
 
+      while (executedNodes.size < version.flowConfig.nodes.length) {
+        const executableNodes = getExecutableNodes();
+        if (executableNodes.length === 0) break; // No more nodes can be executed
+
+        const executionPromises = executableNodes.map(async (node) => {
+          const nodeInputs = this.prepareNodeInputs(node, context, version.flowConfig.connections, nodeResults);
           const nodeResult = await this.executeNode(node, nodeInputs);
-
+          
           nodeResults[node.id] = nodeResult;
           this.updateContext(context, node, nodeResult, version.flowConfig.connections);
-
           executedNodes.add(node.id);
         });
 
         await Promise.all(executionPromises);
+      }
+
+      if (executedNodes.size < version.flowConfig.nodes.length) {
+        throw new Error('Flow execution incomplete: Some nodes could not be executed due to unmet dependencies or conditions');
       }
 
       this.synchronizeResults(context, nodeResults);
