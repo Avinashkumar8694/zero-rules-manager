@@ -151,7 +151,8 @@
                     "inputs": {
                         "IP_policy_premium": "$.flow.policy_premium"
                     }
-                }
+                },
+                "condition": "$.flow.policy_premium > 0"
             },
             {
                 "from": {
@@ -185,7 +186,8 @@
                     "node": "version-1",
                     "input": "$.flow.combined_score",
                     "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
-                }
+                },
+                "condition": "$.flow.risk_score >= 0 && $.flow.compliance_score >= 0"
             },
             {
                 "from": {
@@ -196,12 +198,14 @@
                     {
                         "node": "notification-1",
                         "input": "status",
-                        "value": "$.flow.approval_status"
+                        "value": "$.flow.approval_status",
+                        "condition": "$.flow.approval_status === 'APPROVED'"
                     },
                     {
                         "node": "audit-1",
                         "input": "decision",
-                        "value": "$.flow.approval_status"
+                        "value": "$.flow.approval_status",
+                        "condition": "true"
                     }
                 ]
             }
