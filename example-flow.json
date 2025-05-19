@@ -13,6 +13,22 @@
     "flow": {
         "nodes": [
             {
+                "id": "start-1",
+                "type": "start",
+                "config": {
+                    "mode": "inline",
+                    "input_mapping": {
+                        "policy_premium": "$.flow.policy_premium"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Flow Start",
+                        "description": "Initial node of the flow",
+                        "tags": ["start", "entry-point"]
+                    }
+                }
+            },
+            {
                 "id": "excel-1",
                 "type": "excel",
                 "config": {
@@ -123,6 +139,20 @@
             }
         ],
         "connections": [
+            {
+                "from": {
+                    "node": "start-1",
+                    "outputs": {
+                        "$.flow.policy_premium": "$.flow.policy_premium"
+                    }
+                },
+                "to": {
+                    "node": "excel-1",
+                    "inputs": {
+                        "IP_policy_premium": "$.flow.policy_premium"
+                    }
+                }
+            },
             {
                 "from": {
                     "node": "excel-1",

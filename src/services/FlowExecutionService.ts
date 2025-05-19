@@ -256,6 +256,10 @@ export class FlowExecutionService {
         }
         throw new Error('Invalid Code node configuration');
 
+      case 'start':
+        // Start node passes through its inputs without modification
+        return inputs;
+
       default:
         throw new Error(`Unsupported node type: ${node.type}`);
     }
