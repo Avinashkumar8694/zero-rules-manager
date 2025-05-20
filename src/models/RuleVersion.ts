@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { RuleCategory } from './RuleCategory';
-
+import { InputColumnType } from '../types/rule.types';
 export type RuleType = 'excel' | 'code' | 'flow';
 
 @Entity('rule_versions')
@@ -30,7 +30,18 @@ export class RuleVersion {
   filePath?: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  inputColumns?: Record<string, any>;
+  inputColumns?: Record<string, {
+    type: InputColumnType;
+    fileTypes?: string[];
+    required?: boolean;
+    description?: string;
+    validation?: {
+      maxSize?: number;
+      allowedExtensions?: string[];
+      mimeTypes?: string[];
+      maxCount?: number;
+    };
+  }>;
 
   @Column({ type: 'jsonb', nullable: true })
   outputColumns?: Record<string, {

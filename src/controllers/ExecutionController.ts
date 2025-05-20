@@ -43,7 +43,7 @@ export class ExecutionController {
         return res.status(404).json({ error: 'No active rule version found for this category' });
       }
 
-      return this.executeRules(activeVersion, inputs, res);
+      return this.executeRules(activeVersion, inputs, res, req);
     } catch (error) {
       console.error('Rule execution error:', error);
       return res.status(500).json({ error: 'Failed to execute rules' });
@@ -70,7 +70,7 @@ export class ExecutionController {
         return res.status(404).json({ error: 'No version found for this category' });
       }
 
-      return this.executeRules(latestVersion, inputs, res);
+      return this.executeRules(latestVersion, inputs, res, req);
     } catch (error) {
       console.error('Rule execution error:', error);
       return res.status(500).json({ error: 'Failed to execute rules' });
@@ -95,14 +95,14 @@ export class ExecutionController {
         return res.status(404).json({ error: 'Version not found' });
       }
 
-      return this.executeRules(version, inputs, res);
+      return this.executeRules(version, inputs, res, req);
     } catch (error) {
       console.error('Rule execution error:', error);
       return res.status(500).json({ error: 'Failed to execute rules' });
     }
   }
 
-  private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response) {
+  private async executeRules(version: RuleVersion, inputs: Record<string, any>, res: Response, req?: Request) {
     try {
       let results: Record<string, any>;
       const requiredInputs = version.inputColumns || {};
@@ -118,7 +118,7 @@ export class ExecutionController {
       switch (version.type) {
         case 'flow':
           if (!version.flowConfig) throw new Error('Flow configuration is missing');
-          results = await this.flowExecutionService.executeFlow(version, inputs);
+          results = await this.flowExecutionService.executeFlow(version, inputs, req, res);
           break;
         case 'excel':
           if (!version.filePath) throw new Error('Excel file path is missing');
