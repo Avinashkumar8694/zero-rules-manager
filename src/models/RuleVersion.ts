@@ -52,6 +52,12 @@ export class RuleVersion {
     nodes: Array<{
       id: string;
       type: string;
+      position: {
+        x: number;
+        y: number;
+        width?: number;
+        height?: number;
+      };
       config: {
         mode: 'reference' | 'inline';
         version_id?: string;

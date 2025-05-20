@@ -15,6 +15,10 @@
             {
                 "id": "start-1",
                 "type": "start",
+                "position": {
+                    "x": 100,
+                    "y": 100
+                },
                 "config": {
                     "mode": "inline",
                     "input_mapping": {
@@ -31,6 +35,10 @@
             {
                 "id": "excel-1",
                 "type": "excel",
+                "position": {
+                    "x": 400,
+                    "y": 100
+                },
                 "config": {
                     "mode": "inline",
                     "excel_file": "example.xlsx",
@@ -53,6 +61,10 @@
             {
                 "id": "code-1",
                 "type": "code",
+                "position": {
+                    "x": 700,
+                    "y": 100
+                },
                 "config": {
                     "mode": "inline",
                     "code": "return { status: 'APPROVED', credit: 750 };",
@@ -77,6 +89,10 @@
             {
                 "id": "version-1",
                 "type": "code",
+                "position": {
+                    "x": 400,
+                    "y": 300
+                },
                 "config": {
                     "mode": "inline",
                     "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
@@ -100,6 +116,10 @@
             {
                 "id": "notification-1",
                 "type": "code",
+                "position": {
+                    "x": 100,
+                    "y": 500
+                },
                 "config": {
                     "mode": "inline",
                     "code": "console.log('Notification sent with status:', status);",
@@ -120,6 +140,10 @@
             {
                 "id": "audit-1",
                 "type": "code",
+                "position": {
+                    "x": 700,
+                    "y": 500
+                },
                 "config": {
                     "mode": "inline",
                     "code": "console.log('Audit logged with decision:', decision);",
