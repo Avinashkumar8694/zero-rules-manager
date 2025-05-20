@@ -157,3 +157,11 @@ For detailed flow configuration and examples, see [Flow Execution Guide](./docs/
 - [GitHub Issues](https://github.com/your-repo/issues) - Report bugs and request features
 - [Discord Community](https://discord.gg/your-server) - Join discussions and get help
 - Contact support at support@your-domain.com
+
+## CORS Configuration
+
+Configure allowed origins by setting the `ALLOWED_ORIGINS` environment variable in your .env file:
+```
+ALLOWED_ORIGINS=http://localhost:4200,https://your-production-domain.com
+```
+Multiple domains should be comma-separated without spaces. The server will automatically restart to apply changes.
