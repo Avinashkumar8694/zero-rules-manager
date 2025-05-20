@@ -2,40 +2,151 @@
 
 A powerful business rules engine that transforms Excel-based business logic into RESTful APIs. Define your business rules using Excel's named ranges and formulas, then expose them as versioned API endpoints for seamless integration into your applications.
 
+## System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client
+        API[API Requests]
+    end
+    
+    subgraph RulesManager[Rules Manager Engine]
+        Router[API Router]
+        EC[Execution Controller]
+        VC[Version Controller]
+        CC[Category Controller]
+        
+        subgraph ExecutionEngine[Execution Engine]
+            FES[Flow Execution Service]
+            EXS[Excel Service]
+            CES[Code Service]
+        end
+        
+        subgraph Storage
+            DB[(Database)]
+            FS[File Storage]
+        end
+    end
+    
+    Client --> Router
+    Router --> EC & VC & CC
+    EC --> ExecutionEngine
+    ExecutionEngine --> Storage
+```
+
 ## Key Features
 
-- **Excel-Based Rule Definition**
+### Rule Definition
+- **Excel-Based Rules**
   - Use familiar Excel formulas and functions
-  - Define inputs and outputs using named ranges (IP_ and OP_ prefixes)
+  - Define inputs/outputs using named ranges (IP_/OP_ prefixes)
   - Support for complex calculations and conditional logic
 
-- **Robust Version Control**
-  - Maintain multiple versions of rule sets
-  - Active/inactive version management
-  - Rollback capability for rule changes
+- **Code-Based Rules**
+  - Write custom JavaScript/TypeScript logic
+  - Full programming flexibility
+  - Direct access to execution context
 
-- **Flexible Rule Organization**
-  - Categorize rules by business domain
-  - Group related rules for better maintainability
-  - Easy navigation and management
+- **Flow-Based Rules**
+  - Visual flow designer for complex rule chains
+  - Parallel execution paths
+  - Conditional branching
+  - Data transformation between nodes
 
-- **RESTful API Integration**
-  - Automatic API endpoint generation
-  - JSON request/response format
-  - Comprehensive API documentation
+### Version Management
+- Multiple versions per rule category
+- Active/inactive version control
+- Semantic versioning (MAJOR.MINOR.PATCH)
+- Version history tracking
 
-- **Enterprise-Ready Features**
-  - Input validation and error handling
-  - Execution history tracking
-  - Performance optimization for large rule sets
+### Flow Execution
 
-- **Parallel Flow Execution with Conditions**
-  - Execute multiple paths concurrently
-  - Evaluate conditions before executing nodes
-  - Synchronize results at convergence points
-  - Apply transforms to data before passing to target nodes
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant EC as ExecutionController
+    participant FE as FlowEngine
+    participant N as Nodes
+    participant DB as Database
+    
+    C->>EC: Execute Flow Request
+    EC->>DB: Get Active Version
+    DB-->>EC: Version Config
+    EC->>FE: Execute Flow
+    
+    activate FE
+    FE->>FE: Initialize Context
+    FE->>FE: Validate Inputs
+    
+    loop For Each Node
+        FE->>N: Execute Node
+        N-->>FE: Node Result
+        FE->>FE: Update Context
+        FE->>FE: Apply Transforms
+    end
+    
+    FE->>FE: Synchronize Results
+    FE-->>EC: Final Output
+    deactivate FE
+    
+    EC-->>C: Response
+```
 
-For detailed usage instructions and examples, see [USAGE.md](./USAGE.md).
+## API Endpoints
+
+### Categories
+- `POST /api/categories` - Create category
+- `GET /api/categories` - List categories
+- `GET /api/categories/:id` - Get category
+- `PATCH /api/categories/:id` - Update category
+- `DELETE /api/categories/:id` - Delete category
+
+### Versions
+- `POST /api/categories/:id/versions` - Create version
+- `GET /api/categories/:id/versions` - List versions
+- `PATCH /api/versions/:id` - Update version
+- `DELETE /api/versions/:id` - Delete version
+
+### Execution
+- `POST /api/categories/:id/execute` - Execute active version
+- `POST /api/versions/:id/execute` - Execute specific version
+
+## Flow Configuration
+
+### Node Types
+1. **Excel Node**
+   ```json
+   {
+     "type": "excel",
+     "config": {
+       "mode": "reference|inline",
+       "version_id": "uuid",
+       "excel_file": "path/to/file.xlsx"
+     }
+   }
+   ```
+
+2. **Code Node**
+   ```json
+   {
+     "type": "code",
+     "config": {
+       "mode": "reference|inline",
+       "version_id": "uuid",
+       "code": "function execute(inputs) { ... }"
+     }
+   }
+   ```
+
+### Connection Configuration
+```json
+{
+  "from": { "node": "nodeId", "output": "outputName" },
+  "to": { "node": "nodeId", "input": "inputName" },
+  "transform": "optional transformation logic",
+  "condition": "optional execution condition"
+}
+```
 
 ## Tech Stack
 
@@ -48,86 +159,17 @@ For detailed usage instructions and examples, see [USAGE.md](./USAGE.md).
 
 ```
 ├── src/
-│   ├── controllers/        # Request handlers
-│   ├── services/           # Business logic
-│   ├── models/             # Database entities
-│   ├── routes/             # API routes
-│   ├── middleware/         # Custom middleware
-│   ├── utils/              # Helper functions
-│   ├── config/             # Configuration files
-│   └── app.ts              # Application entry point
-├── test/                   # Test files
-├── uploads/                # Temporary file storage
-└── package.json            # Project dependencies
+│   ├── controllers/     # Request handlers
+│   ├── services/        # Business logic
+│   ├── models/          # Database entities
+│   ├── routes/          # API routes
+│   ├── middleware/      # Custom middleware
+│   ├── utils/           # Helper functions
+│   ├── config/          # Configuration files
+│   └── app.ts           # Application entry point
+├── test/                # Test files
+├── uploads/             # Temporary file storage
+└── package.json         # Project dependencies
 ```
 
-## Database Schema
-
-### RuleCategory
-- id: UUID (Primary Key)
-- name: string
-- description: string
-- createdAt: timestamp
-- updatedAt: timestamp
-
-### RuleVersion
-- id: UUID (Primary Key)
-- categoryId: UUID (Foreign Key)
-- version: string
-- isActive: boolean
-- filePath: string
-- inputColumns: jsonb
-- outputColumns: jsonb
-- createdAt: timestamp
-- updatedAt: timestamp
-
-## API Endpoints
-
-### Rule Categories
-- `POST /api/categories` - Create a new rule category
-- `GET /api/categories` - List all rule categories
-- `GET /api/categories/:id` - Get category details
-- `PATCH /api/categories/:id` - Update category details
-- `DELETE /api/categories/:id` - Delete a category
-
-### Rule Versions
-- `POST /api/categories/:id/versions` - Upload new rule version
-- `GET /api/categories/:id/versions` - List versions for a category
-- `PATCH /api/versions/:id` - Update version status (enable/disable)
-- `DELETE /api/versions/:id` - Delete a version
-- `GET /api/versions/:id` - Get version details
-- `POST /api/versions/:id/execute` - Execute a version with custom parameters
-- `GET /api/versions/:id/execute` - Get execution history for a version
-
-
-### Rule Execution
-- `POST /api/execute/:categoryId` - Execute rules for a category
-
-## Setup Instructions
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure environment variables:
-   ```env
-   PORT=3000
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
-   DB_DATABASE=rules_manager
-   ```
-4. Run database migrations:
-   ```bash
-   npm run typeorm migration:run
-   ```
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## License
-
-MIT
+For detailed usage instructions and examples, see [USAGE.md](./USAGE.md).
