@@ -466,6 +466,27 @@ Response: 204 No Content
 
 ### Rule Execution
 
+#### Execute Flow Version
+```bash
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/:versionId/execute \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "amount": 100,
+    "rate": 1.5
+  }'
+```
+
+Response (200 OK):
+```json
+{
+  "version": "1.0.0",
+  "results": {
+    "total": 150,
+    "tax": 15
+  }
+}
+```
 
 #### Error Responses
 
@@ -530,13 +551,107 @@ Example Excel file structure:
 When executing rules with this Excel template:
 
 ```bash
-curl -X POST http://localhost:3000/api/execute/category-id \
+curl -X POST http://localhost:3000/api/categories/:categoryId/versions/flow \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
-    "base_premium": 2000,
-    "risk_factor": 1.8
+    "name": "1.0.0",
+    "description": "Basic calculation flow",
+    "type": "flow",
+    "inputColumns": {
+      "amount": { "type": "number", "name": "amount" },
+      "rate": { "type": "number", "name": "rate" }
+    },
+    "outputColumns": {
+      "total": { "type": "number", "name": "total" },
+      "tax": { "type": "number", "name": "tax" }
+    },
+    "variables": {
+      "taxRate": {
+        "type": "number",
+        "default": 0.1,
+        "description": "Tax rate percentage"
+      }
+    },
+    "flowConfig": {
+      "nodes": [
+        {
+          "id": "calc1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return amount * rate;",
+            "input_mapping": {
+              "amount": "amount",
+              "rate": "rate"
+            },
+            "output_mapping": {
+              "result": "total"
+            }
+          }
+        },
+        {
+          "id": "calc2",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return total * taxRate;",
+            "input_mapping": {
+              "total": "total",
+              "taxRate": "taxRate"
+            },
+            "output_mapping": {
+              "result": "tax"
+            }
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "node": "calc1",
+            "outputs": { "result": "total" }
+          },
+          "to": {
+            "node": "calc2",
+            "inputs": { "total": "total" }
+          }
+        }
+      ]
+    }
   }'
+
+Response (201 Created):
+```json
+{
+  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
+  "categoryId": "550e8400-e29b-41d4-a716-446655440000",
+  "version": "1.0.0",
+  "description": "Basic calculation flow",
+  "type": "flow",
+  "isActive": false,
+  "inputColumns": {
+    "amount": { "type": "number", "name": "amount" },
+    "rate": { "type": "number", "name": "rate" }
+  },
+  "outputColumns": {
+    "total": { "type": "number", "name": "total" },
+    "tax": { "type": "number", "name": "tax" }
+  },
+  "variables": {
+    "taxRate": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Tax rate percentage"
+    }
+  },
+  "flowConfig": {
+    "nodes": [...],
+    "connections": [...]
+  },
+  "createdAt": "2024-01-20T12:00:00Z",
+  "updatedAt": "2024-01-20T12:00:00Z"
+}
 ```
 
 Expected response:
@@ -555,3 +670,474 @@ This example demonstrates:
 - Using meaningful named ranges for inputs and outputs
 - Complex formula calculations using named ranges
 - Proper Excel template structure for rule execution
+
+### Flow Version Execution
+
+#### Execute Flow Version with Conditions and Transforms
+```bash
+curl -X POST http://localhost:3000/api/execute/your-category-id \
+  -H "Content-Type: application/json" \
+  -d '{
+        "policy_premium": 1000,
+        "initial_status": "APPROVED",
+        "credit_rating": 750
+      }'
+```
+
+Response (200 OK):
+```json
+{
+  "version": "1.0.0",
+  "results": {
+    "total_premium": 1000,
+    "approval_status": "APPROVED",
+    "combined_score": 750
+  }
+}
+```
+
+### Complete Workflow Example
+
+#### Create a Category
+```bash
+curl -X POST http://localhost:3000/api/categories \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "name": "Insurance Rules",
+    "description": "Rules for insurance policy calculations"
+  }'
+```
+
+Response (201 Created):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Insurance Rules",
+  "description": "Rules for insurance policy calculations",
+  "createdAt": "2024-01-20T12:00:00Z",
+  "updatedAt": "2024-01-20T12:00:00Z"
+}
+```
+
+#### Create a Flow Version
+```bash
+curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions/flow \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "name": "Flow Version 1",
+    "description": "Sample flow version",
+    "type": "flow",
+    "inputColumns": {
+      "policy_premium": {
+        "type": "number"
+      }
+    },
+    "outputColumns": {
+      "result": {
+        "type": "number"
+      }
+    },
+    "variables": {
+      "initial_status": {
+        "type": "string",
+        "default": "PENDING"
+      },
+      "credit_rating": {
+        "type": "number",
+        "default": 0
+      }
+    },
+    "flow": {
+      "nodes": [
+        {
+          "id": "excel-1",
+          "type": "excel",
+          "config": {
+            "mode": "inline",
+            "excel_file": "example.xlsx",
+            "input_mapping": {
+              "IP_policy_premium": "$.flow.policy_premium"
+            },
+            "output_mapping": {
+              "$.flow.result": "$.OP_result"
+            },
+            "metadata": {
+              "name": "Premium Calculator",
+              "description": "Calculates premium based on input",
+              "tags": [
+                "premium",
+                "calculation"
+              ]
+            }
+          }
+        },
+        {
+          "id": "code-1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return { status: 'APPROVED', credit: 750 };",
+            "input_mapping": {
+              "status": "$.flow.initial_status",
+              "credit": "$.flow.credit_rating"
+            },
+            "output_mapping": {
+              "$.flow.status": "status",
+              "$.flow.credit": "credit"
+            },
+            "metadata": {
+              "name": "Credit Check",
+              "description": "Performs credit check",
+              "tags": [
+                "credit",
+                "check"
+              ]
+            }
+          }
+        },
+        {
+          "id": "version-1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
+            "input_mapping": {
+              "risk_score": "$.flow.risk_score",
+              "compliance_score": "$.flow.compliance_score"
+            },
+            "output_mapping": {
+              "$.flow.combined_score": "combined_score"
+            },
+            "metadata": {
+              "name": "Score Aggregator",
+              "description": "Aggregates risk and compliance scores",
+              "tags": [
+                "score",
+                "aggregation"
+              ]
+            }
+          }
+        },
+        {
+          "id": "notification-1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "console.log('Notification sent with status:', status);",
+            "input_mapping": {
+              "status": "$.flow.approval_status"
+            },
+            "output_mapping": {},
+            "metadata": {
+              "name": "Notification Sender",
+              "description": "Sends notification",
+              "tags": [
+                "notification",
+                "send"
+              ]
+            }
+          }
+        },
+        {
+          "id": "audit-1",
+          "type": "code",
+          "config": {
+            "mode": "inline",
+            "code": "console.log('Audit logged with decision:', decision);",
+            "input_mapping": {
+              "decision": "$.flow.approval_status"
+            },
+            "output_mapping": {},
+            "metadata": {
+              "name": "Audit Logger",
+              "description": "Logs audit decision",
+              "tags": [
+                "audit",
+                "log"
+              ]
+            }
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "node": "excel-1",
+            "outputs": {
+              "$.flow.initial_status": "$.OP_STATUS",
+              "$.flow.credit_rating": "$.OP_CREDIT"
+            }
+          },
+          "to": {
+            "node": "code-1",
+            "inputs": {
+              "status": "$.flow.initial_status",
+              "credit": "$.flow.credit_rating"
+            }
+          },
+          "condition": "$.flow.initial_status !== 'REJECTED'"
+        },
+        {
+          "from": [
+            {
+              "node": "excel-1",
+              "output": "$.flow.risk_score"
+            },
+            {
+              "node": "code-1",
+              "output": "$.flow.compliance_score"
+            }
+          ],
+          "to": {
+            "node": "version-1",
+            "input": "$.flow.combined_score",
+            "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
+          }
+        },
+        {
+          "from": {
+            "node": "version-1",
+            "output": "$.flow.approval_status"
+          },
+          "to": [
+            {
+              "node": "notification-1",
+              "input": "status",
+              "value": "$.flow.approval_status"
+            },
+            {
+              "node": "audit-1",
+              "input": "decision",
+              "value": "$.flow.approval_status"
+            }
+          ]
+        }
+      ]
+    }
+  }'
+```
+
+Response (201 Created):
+```json
+{
+  "id": "7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000",
+  "categoryId": "550e8400-e29b-41d4-a716-446655440000",
+  "version": "1.0.0",
+  "description": "Sample flow version",
+  "type": "flow",
+  "isActive": false,
+  "inputColumns": {
+    "policy_premium": {
+      "type": "number"
+    }
+  },
+  "outputColumns": {
+    "result": {
+      "type": "number"
+    }
+  },
+  "variables": {
+    "initial_status": {
+      "type": "string",
+      "default": "PENDING"
+    },
+    "credit_rating": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "flow": {
+    "nodes": [
+      {
+        "id": "excel-1",
+        "type": "excel",
+        "config": {
+          "mode": "inline",
+          "excel_file": "example.xlsx",
+          "input_mapping": {
+            "IP_policy_premium": "$.flow.policy_premium"
+          },
+          "output_mapping": {
+            "$.flow.result": "$.OP_result"
+          },
+          "metadata": {
+            "name": "Premium Calculator",
+            "description": "Calculates premium based on input",
+            "tags": [
+              "premium",
+              "calculation"
+            ]
+          }
+        }
+      },
+      {
+        "id": "code-1",
+        "type": "code",
+        "config": {
+          "mode": "inline",
+          "code": "return { status: 'APPROVED', credit: 750 };",
+          "input_mapping": {
+            "status": "$.flow.initial_status",
+            "credit": "$.flow.credit_rating"
+          },
+          "output_mapping": {
+            "$.flow.status": "status",
+            "$.flow.credit": "credit"
+          },
+          "metadata": {
+            "name": "Credit Check",
+            "description": "Performs credit check",
+            "tags": [
+              "credit",
+              "check"
+            ]
+          }
+        }
+      },
+      {
+        "id": "version-1",
+        "type": "code",
+        "config": {
+          "mode": "inline",
+          "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
+          "input_mapping": {
+            "risk_score": "$.flow.risk_score",
+            "compliance_score": "$.flow.compliance_score"
+          },
+          "output_mapping": {
+            "$.flow.combined_score": "combined_score"
+          },
+          "metadata": {
+            "name": "Score Aggregator",
+            "description": "Aggregates risk and compliance scores",
+            "tags": [
+              "score",
+              "aggregation"
+            ]
+          }
+        }
+      },
+      {
+        "id": "notification-1",
+        "type": "code",
+        "config": {
+          "mode": "inline",
+          "code": "console.log('Notification sent with status:', status);",
+          "input_mapping": {
+            "status": "$.flow.approval_status"
+          },
+          "output_mapping": {},
+          "metadata": {
+            "name": "Notification Sender",
+            "description": "Sends notification",
+            "tags": [
+              "notification",
+              "send"
+            ]
+          }
+        }
+      },
+      {
+        "id": "audit-1",
+        "type": "code",
+        "config": {
+          "mode": "inline",
+          "code": "console.log('Audit logged with decision:', decision);",
+          "input_mapping": {
+            "decision": "$.flow.approval_status"
+          },
+          "output_mapping": {},
+          "metadata": {
+            "name": "Audit Logger",
+            "description": "Logs audit decision",
+            "tags": [
+              "audit",
+              "log"
+            ]
+          }
+        }
+      }
+    ],
+    "connections": [
+      {
+        "from": {
+          "node": "excel-1",
+          "outputs": {
+            "$.flow.initial_status": "$.OP_STATUS",
+            "$.flow.credit_rating": "$.OP_CREDIT"
+          }
+        },
+        "to": {
+          "node": "code-1",
+          "inputs": {
+            "status": "$.flow.initial_status",
+            "credit": "$.flow.credit_rating"
+          }
+        },
+        "condition": "$.flow.initial_status !== 'REJECTED'"
+      },
+      {
+        "from": [
+          {
+            "node": "excel-1",
+            "output": "$.flow.risk_score"
+          },
+          {
+            "node": "code-1",
+            "output": "$.flow.compliance_score"
+          }
+        ],
+        "to": {
+          "node": "version-1",
+          "input": "$.flow.combined_score",
+          "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
+        }
+      },
+      {
+        "from": {
+          "node": "version-1",
+          "output": "$.flow.approval_status"
+        },
+        "to": [
+          {
+            "node": "notification-1",
+            "input": "status",
+            "value": "$.flow.approval_status"
+          },
+          {
+            "node": "audit-1",
+            "input": "decision",
+            "value": "$.flow.approval_status"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### Execute Flow Version
+```bash
+curl -X POST http://localhost:3000/api/categories/550e8400-e29b-41d4-a716-446655440000/versions/7c0e9a5d-8d0a-4f00-9a1c-6b5f3c7d0000/execute \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "policy_premium": 1000,
+    "initial_status": "APPROVED",
+    "credit_rating": 750
+  }'
+```
+
+Response (200 OK):
+```json
+{
+  "version": "1.0.0",
+  "results": {
+    "total_premium": 1000,
+    "approval_status": "APPROVED",
+    "combined_score": 750
+  }
+}
+```

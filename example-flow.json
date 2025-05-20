@@ -1,0 +1,238 @@
+{
+    "version": "1.0.0",
+    "inputColumns": {
+        "policy_premium": {
+            "type": "number"
+        }
+    },
+    "outputColumns": {
+        "result": {
+            "type": "number"
+        }
+    },
+    "flow": {
+        "nodes": [
+            {
+                "id": "start-1",
+                "type": "start",
+                "position": {
+                    "x": 100,
+                    "y": 100
+                },
+                "config": {
+                    "mode": "inline",
+                    "input_mapping": {
+                        "policy_premium": "$.flow.policy_premium"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Flow Start",
+                        "description": "Initial node of the flow",
+                        "tags": ["start", "entry-point"]
+                    }
+                }
+            },
+            {
+                "id": "excel-1",
+                "type": "excel",
+                "position": {
+                    "x": 400,
+                    "y": 100
+                },
+                "config": {
+                    "mode": "inline",
+                    "excel_file": "example.xlsx",
+                    "input_mapping": {
+                        "IP_policy_premium": "$.flow.policy_premium"
+                    },
+                    "output_mapping": {
+                        "$.flow.result": "$.OP_result"
+                    },
+                    "metadata": {
+                        "name": "Premium Calculator",
+                        "description": "Calculates premium based on input",
+                        "tags": [
+                            "premium",
+                            "calculation"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "code-1",
+                "type": "code",
+                "position": {
+                    "x": 700,
+                    "y": 100
+                },
+                "config": {
+                    "mode": "inline",
+                    "code": "return { status: 'APPROVED', credit: 750 };",
+                    "input_mapping": {
+                        "status": "$.flow.initial_status",
+                        "credit": "$.flow.credit_rating"
+                    },
+                    "output_mapping": {
+                        "$.flow.status": "status",
+                        "$.flow.credit": "credit"
+                    },
+                    "metadata": {
+                        "name": "Credit Check",
+                        "description": "Performs credit check",
+                        "tags": [
+                            "credit",
+                            "check"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "version-1",
+                "type": "code",
+                "position": {
+                    "x": 400,
+                    "y": 300
+                },
+                "config": {
+                    "mode": "inline",
+                    "code": "return { combined_score: (risk_score + compliance_score) / 2 };",
+                    "input_mapping": {
+                        "risk_score": "$.flow.risk_score",
+                        "compliance_score": "$.flow.compliance_score"
+                    },
+                    "output_mapping": {
+                        "$.flow.combined_score": "combined_score"
+                    },
+                    "metadata": {
+                        "name": "Score Aggregator",
+                        "description": "Aggregates risk and compliance scores",
+                        "tags": [
+                            "score",
+                            "aggregation"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "notification-1",
+                "type": "code",
+                "position": {
+                    "x": 100,
+                    "y": 500
+                },
+                "config": {
+                    "mode": "inline",
+                    "code": "console.log('Notification sent with status:', status);",
+                    "input_mapping": {
+                        "status": "$.flow.approval_status"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Notification Sender",
+                        "description": "Sends notification",
+                        "tags": [
+                            "notification",
+                            "send"
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "audit-1",
+                "type": "code",
+                "position": {
+                    "x": 700,
+                    "y": 500
+                },
+                "config": {
+                    "mode": "inline",
+                    "code": "console.log('Audit logged with decision:', decision);",
+                    "input_mapping": {
+                        "decision": "$.flow.approval_status"
+                    },
+                    "output_mapping": {},
+                    "metadata": {
+                        "name": "Audit Logger",
+                        "description": "Logs audit decision",
+                        "tags": [
+                            "audit",
+                            "log"
+                        ]
+                    }
+                }
+            }
+        ],
+        "connections": [
+            {
+                "from": {
+                    "node": "start-1",
+                    "outputs": {
+                        "$.flow.policy_premium": "$.flow.policy_premium"
+                    }
+                },
+                "to": {
+                    "node": "excel-1",
+                    "inputs": {
+                        "IP_policy_premium": "$.flow.policy_premium"
+                    }
+                },
+                "condition": "$.flow.policy_premium > 0"
+            },
+            {
+                "from": {
+                    "node": "excel-1",
+                    "outputs": {
+                        "$.flow.initial_status": "$.OP_STATUS",
+                        "$.flow.credit_rating": "$.OP_CREDIT"
+                    }
+                },
+                "to": {
+                    "node": "code-1",
+                    "inputs": {
+                        "status": "$.flow.initial_status",
+                        "credit": "$.flow.credit_rating"
+                    }
+                },
+                "condition": "$.flow.initial_status !== 'REJECTED'"
+            },
+            {
+                "from": [
+                    {
+                        "node": "excel-1",
+                        "output": "$.flow.risk_score"
+                    },
+                    {
+                        "node": "code-1",
+                        "output": "$.flow.compliance_score"
+                    }
+                ],
+                "to": {
+                    "node": "version-1",
+                    "input": "$.flow.combined_score",
+                    "transform": "($.flow.risk_score + $.flow.compliance_score) / 2"
+                },
+                "condition": "$.flow.risk_score >= 0 && $.flow.compliance_score >= 0"
+            },
+            {
+                "from": {
+                    "node": "version-1",
+                    "output": "$.flow.approval_status"
+                },
+                "to": [
+                    {
+                        "node": "notification-1",
+                        "input": "status",
+                        "value": "$.flow.approval_status",
+                        "condition": "$.flow.approval_status === 'APPROVED'"
+                    },
+                    {
+                        "node": "audit-1",
+                        "input": "decision",
+                        "value": "$.flow.approval_status",
+                        "condition": "true"
+                    }
+                ]
+            }
+        ]
+    }
+}

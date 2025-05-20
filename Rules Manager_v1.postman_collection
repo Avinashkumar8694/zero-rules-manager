@@ -1,0 +1,2065 @@
+{
+	"info": {
+		"_postman_id": "fb552a83-b94b-4cea-a689-5c2369cc6f9e",
+		"name": "Rules Manager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10411534"
+	},
+	"item": [
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Zero Rules\", \"description\": \"Basic Zero operations\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create Category",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\": \"Calculation Rules\", \"description\": \"Basic arithmetic operations\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "40"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"28-5PLCUurbm6msMFNY39YVnzxmALs\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 05:50:41 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Category name already exists\"\n}"
+						},
+						{
+							"name": "Create Category",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\": \"Zero Rules\", \"description\": \"Basic Zero operations\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "181"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b5-ZpXNlJydXPU+sTRYEPVVr0sFoBw\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 05:51:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Zero Rules\",\n    \"description\": \"Basic Zero operations\",\n    \"id\": \"58606dd0-4307-401e-9de7-b7ec5674a664\",\n    \"createdAt\": \"2025-05-06T00:21:09.986Z\",\n    \"updatedAt\": \"2025-05-06T00:21:09.986Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all Categories",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Categories",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/categories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "196"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c4-WM1owChPS9FFgnMRcFyCWgs7L1E\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 05:49:55 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n        \"name\": \"Calculation Rules\",\n        \"description\": \"Basic arithmetic operations\",\n        \"createdAt\": \"2025-05-06T00:19:38.929Z\",\n        \"updatedAt\": \"2025-05-06T00:19:38.929Z\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "update category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Updated Rules\",\r\n  \"description\": \"Updated description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "update category",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Updated Rules\",\r\n  \"description\": \"Updated description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "182"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b6-yIe6PkWp4KgTzwISsKs/oLqGij4\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 05:51:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"name\": \"Updated Rules\",\n    \"description\": \"Updated description\",\n    \"createdAt\": \"2025-05-06T00:19:38.929Z\",\n    \"updatedAt\": \"2025-05-06T00:21:51.020Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete a Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "58606dd0-4307-401e-9de7-b7ec5674a664"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Delete a Category",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "58606dd0-4307-401e-9de7-b7ec5674a664"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 05:52:29 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Rules Version",
+			"item": [
+				{
+					"name": "Upload a Rule Version",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"
+								},
+								{
+									"key": "name",
+									"value": "Premium Calculation",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "description",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "excel",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId/versions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions",
+								"upload"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Upload a Rule Version",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"
+										},
+										{
+											"key": "version",
+											"value": "1.0.1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/679bca33-df52-4798-b84e-2fe4d936b9db/versions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										"679bca33-df52-4798-b84e-2fe4d936b9db",
+										"versions"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "485"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e5-etjIkD7uy28TQ98SQfbPBPHBQcY\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 06:49:33 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"version\": \"2025-05-06T06:49:32.989Z\",\n    \"isActive\": false,\n    \"filePath\": \"uploads\\\\7b8102fe-ff74-4a08-9d40-b4cc17ad1762.xlsx\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"name\": \"policy_premium\",\n            \"type\": \"number\",\n            \"value\": 1118.63\n        }\n    },\n    \"outputColumns\": {\n        \"total_premium\": {\n            \"name\": \"total_premium\",\n            \"type\": \"number\",\n            \"formula\": \"K4+(K4)*0.15\"\n        }\n    },\n    \"id\": \"3e9bd5d6-d9f4-4967-b5c0-1985b68a7043\",\n    \"createdAt\": \"2025-05-06T01:19:32.992Z\",\n    \"updatedAt\": \"2025-05-06T01:19:32.992Z\"\n}"
+						},
+						{
+							"name": "Upload a Rule Version - flow change",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"
+										},
+										{
+											"key": "name",
+											"value": "Premium Calculation",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "type",
+											"value": "excel",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/versions/upload",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"versions",
+										"upload"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "573"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"23d-3nkomAIfvNbHd9keVNIldDffWkA\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 14 May 2025 12:51:12 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"categoryId\": \"8de3102f-b65d-4e1e-bfb0-38448f0d9c38\",\n    \"version\": \"1.0.0\",\n    \"name\": \"Premium Calculation\",\n    \"description\": \"description\",\n    \"type\": \"excel\",\n    \"isActive\": false,\n    \"filePath\": \"uploads\\\\e0b7beb1-03c0-423b-a3ef-8408b9c437a0.xlsx\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"name\": \"policy_premium\",\n            \"type\": \"number\",\n            \"value\": 1118.63\n        }\n    },\n    \"outputColumns\": {\n        \"total_premium\": {\n            \"name\": \"total_premium\",\n            \"type\": \"number\",\n            \"formula\": \"K4+(K4)*0.15\"\n        }\n    },\n    \"variables\": null,\n    \"flowConfig\": null,\n    \"id\": \"d198b491-e956-46a2-a1ea-f4b57c210a11\",\n    \"createdAt\": \"2025-05-14T07:21:12.318Z\",\n    \"updatedAt\": \"2025-05-14T07:21:12.318Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Code based version",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Calculation\",\n    \"description\": \"Calculates\",\n    \"type\": \"code\",\n    \"inputColumns\": {\n      \"num1\": { \"name\": \"num1\", \"type\": \"number\" },\n      \"num2\": { \"name\": \"num2\", \"type\": \"number\" }\n    },\n    \"outputColumns\": {\n      \"sum\": {\n        \"name\": \"sum\",\n        \"type\": \"number\",\n        \"code\": \"return num1 + num2;\"\n      },\n      \"product\": {\n        \"name\": \"product\",\n        \"type\": \"number\",\n        \"code\": \"return num1 * num2;\"\n      }\n    }\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId/versions/code",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions",
+								"code"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Versions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId/versions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Category Versions",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/versions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"versions"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1415"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"587-ml7OzUXfXoesnqHT4Kk5lL0ildA\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 08:01:00 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"versions\": [\n        {\n            \"id\": \"5e3d118b-062b-4a9d-b98b-994b7b1d4d12\",\n            \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n            \"version\": \"1.2.0\",\n            \"isActive\": false,\n            \"filePath\": \"uploads\\\\e68f6d66-20eb-461e-9951-01564db40832.xlsx\",\n            \"inputColumns\": {\n                \"policy_premium\": {\n                    \"name\": \"policy_premium\",\n                    \"type\": \"number\",\n                    \"value\": 1118.63\n                }\n            },\n            \"outputColumns\": {\n                \"total_premium\": {\n                    \"name\": \"total_premium\",\n                    \"type\": \"number\",\n                    \"formula\": \"K4+(K4)*0.15\"\n                }\n            },\n            \"createdAt\": \"2025-05-06T02:27:07.288Z\",\n            \"updatedAt\": \"2025-05-06T02:27:07.288Z\"\n        },\n        {\n            \"id\": \"f4ebd7d2-a9b3-46f3-bcf9-01ac999476c4\",\n            \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n            \"version\": \"1.1.0\",\n            \"isActive\": false,\n            \"filePath\": \"uploads\\\\16d133fd-ab30-4267-a285-6f2439e565f4.xlsx\",\n            \"inputColumns\": {\n                \"policy_premium\": {\n                    \"name\": \"policy_premium\",\n                    \"type\": \"number\",\n                    \"value\": 1118.63\n                }\n            },\n            \"outputColumns\": {\n                \"total_premium\": {\n                    \"name\": \"total_premium\",\n                    \"type\": \"number\",\n                    \"formula\": \"K4+(K4)*0.15\"\n                }\n            },\n            \"createdAt\": \"2025-05-06T02:26:53.105Z\",\n            \"updatedAt\": \"2025-05-06T02:26:53.105Z\"\n        },\n        {\n            \"id\": \"38030bd2-bd21-48be-94d0-ec7da1f1d736\",\n            \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n            \"version\": \"1.0.0\",\n            \"isActive\": false,\n            \"filePath\": \"uploads\\\\254ba4b2-4926-4a41-940e-46dd38ebae76.xlsx\",\n            \"inputColumns\": {\n                \"policy_premium\": {\n                    \"name\": \"policy_premium\",\n                    \"type\": \"number\",\n                    \"value\": 1118.63\n                }\n            },\n            \"outputColumns\": {\n                \"total_premium\": {\n                    \"name\": \"total_premium\",\n                    \"type\": \"number\",\n                    \"formula\": \"K4+(K4)*0.15\"\n                }\n            },\n            \"createdAt\": \"2025-05-06T02:26:41.714Z\",\n            \"updatedAt\": \"2025-05-06T02:26:41.714Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Specific Version",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/versions/:versionId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"versions",
+								":versionId"
+							],
+							"variable": [
+								{
+									"key": "versionId",
+									"value": "5e3d118b-062b-4a9d-b98b-994b7b1d4d12"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Specific Version",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/versions/:versionId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"versions",
+										":versionId"
+									],
+									"variable": [
+										{
+											"key": "versionId",
+											"value": "5e3d118b-062b-4a9d-b98b-994b7b1d4d12"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "660"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"294-So0NpxJZtRE4CN4PhwHGJ0MZF5Q\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 08:47:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"5e3d118b-062b-4a9d-b98b-994b7b1d4d12\",\n    \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"version\": \"1.2.0\",\n    \"isActive\": false,\n    \"filePath\": \"uploads\\\\e68f6d66-20eb-461e-9951-01564db40832.xlsx\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"name\": \"policy_premium\",\n            \"type\": \"number\",\n            \"value\": 1118.63\n        }\n    },\n    \"outputColumns\": {\n        \"total_premium\": {\n            \"name\": \"total_premium\",\n            \"type\": \"number\",\n            \"formula\": \"K4+(K4)*0.15\"\n        }\n    },\n    \"createdAt\": \"2025-05-06T02:27:07.288Z\",\n    \"updatedAt\": \"2025-05-06T02:27:07.288Z\",\n    \"category\": {\n        \"id\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n        \"name\": \"Updated Rules\",\n        \"description\": \"Updated description\",\n        \"createdAt\": \"2025-05-06T00:19:38.929Z\",\n        \"updatedAt\": \"2025-05-06T00:21:51.020Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Version Excel Based",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/versions/:versionId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"versions",
+								":versionId"
+							],
+							"variable": [
+								{
+									"key": "versionId",
+									"value": "79a63f2e-50f1-4444-bef9-127965628c67"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Version",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/AvinashGupta/Downloads/premium_calculation.xlsx"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/versions/:versionId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"versions",
+										":versionId"
+									],
+									"variable": [
+										{
+											"key": "versionId",
+											"value": "5e3d118b-062b-4a9d-b98b-994b7b1d4d12"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "466"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1d2-SYWwU0OZ61zZwu+iU3LRnKGdPs4\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 08:54:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"5e3d118b-062b-4a9d-b98b-994b7b1d4d12\",\n    \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"version\": \"1.2.0\",\n    \"isActive\": false,\n    \"filePath\": \"uploads\\\\4c60041d-d941-4566-be59-5faf5709471f.xlsx\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"name\": \"policy_premium\",\n            \"type\": \"number\",\n            \"value\": 1118.63\n        }\n    },\n    \"outputColumns\": {\n        \"total_premium\": {\n            \"name\": \"total_premium\",\n            \"type\": \"number\",\n            \"formula\": \"K4+(K4)*0.15\"\n        }\n    },\n    \"createdAt\": \"2025-05-06T02:27:07.288Z\",\n    \"updatedAt\": \"2025-05-06T08:54:48.583Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Version Code Based",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"inputColumns\": {\n      \"num1\": { \"name\": \"num1\", \"type\": \"number\" },\n      \"num2\": { \"name\": \"num2\", \"type\": \"number\" }\n    },\n    \"outputColumns\": {\n      \"sum\": {\n        \"name\": \"sum\",\n        \"type\": \"number\",\n        \"code\": \"return num1 + num2;\"\n      },\n      \"product\": {\n        \"name\": \"product\",\n        \"type\": \"number\",\n        \"code\": \"return num1 * num2 * num2;\"\n      }\n    }\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/versions/:versionId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"versions",
+								":versionId"
+							],
+							"variable": [
+								{
+									"key": "versionId",
+									"value": "78c0d47a-9981-4f6f-833e-7350a1b37565"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Version Code Based",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"inputColumns\": {\n      \"num1\": { \"name\": \"num1\", \"type\": \"number\" },\n      \"num2\": { \"name\": \"num2\", \"type\": \"number\" }\n    },\n    \"outputColumns\": {\n      \"sum\": {\n        \"name\": \"sum\",\n        \"type\": \"number\",\n        \"code\": \"return num1 + num2;\"\n      },\n      \"product\": {\n        \"name\": \"product\",\n        \"type\": \"number\",\n        \"code\": \"return num1 * num2 * num2;\"\n      }\n    }\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/versions/:versionId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"versions",
+										":versionId"
+									],
+									"variable": [
+										{
+											"key": "versionId",
+											"value": "78c0d47a-9981-4f6f-833e-7350a1b37565"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "486"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e6-wS0p9oLDYG8/1DInfumoybJq1YQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 04:09:06 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"78c0d47a-9981-4f6f-833e-7350a1b37565\",\n    \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"version\": \"3.0.0\",\n    \"isActive\": false,\n    \"filePath\": null,\n    \"inputColumns\": {\n        \"num1\": {\n            \"name\": \"num1\",\n            \"type\": \"number\"\n        },\n        \"num2\": {\n            \"name\": \"num2\",\n            \"type\": \"number\"\n        }\n    },\n    \"outputColumns\": {\n        \"sum\": {\n            \"name\": \"sum\",\n            \"type\": \"number\",\n            \"code\": \"return num1 + num2;\"\n        },\n        \"product\": {\n            \"name\": \"product\",\n            \"type\": \"number\",\n            \"code\": \"return num1 * num2 * num2;\"\n        }\n    },\n    \"createdAt\": \"2025-05-06T14:59:40.455Z\",\n    \"updatedAt\": \"2025-05-07T04:09:06.084Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Toggle Version status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"isActive\": true\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/versions/:versionId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"versions",
+								":versionId"
+							],
+							"variable": [
+								{
+									"key": "versionId",
+									"value": "be3ed138-dc73-4bcc-bbb5-570ff3e46f91"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Toggle Version status",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"isActive\": true\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/versions/:versionId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"versions",
+										":versionId"
+									],
+									"variable": [
+										{
+											"key": "versionId",
+											"value": "be3ed138-dc73-4bcc-bbb5-570ff3e46f91"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "465"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1d1-z3aR4mKm+9L3eJ+qUPm4KMt/ZMY\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 09:19:56 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"be3ed138-dc73-4bcc-bbb5-570ff3e46f91\",\n    \"categoryId\": \"679bca33-df52-4798-b84e-2fe4d936b9db\",\n    \"version\": \"1.0.0\",\n    \"isActive\": true,\n    \"filePath\": \"uploads\\\\05c003e3-59fc-4224-bb8d-0879909bda79.xlsx\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"name\": \"policy_premium\",\n            \"type\": \"number\",\n            \"value\": 1118.63\n        }\n    },\n    \"outputColumns\": {\n        \"total_premium\": {\n            \"name\": \"total_premium\",\n            \"type\": \"number\",\n            \"formula\": \"K4+(K4)*0.15\"\n        }\n    },\n    \"createdAt\": \"2025-05-06T03:47:02.967Z\",\n    \"updatedAt\": \"2025-05-06T03:49:56.022Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Version",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"isActive\": true\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/versions/:versionId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"versions",
+								":versionId"
+							],
+							"variable": [
+								{
+									"key": "versionId",
+									"value": "f4ebd7d2-a9b3-46f3-bcf9-01ac999476c4"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Delete Version",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"isActive\": true\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/versions/:versionId",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"versions",
+										":versionId"
+									],
+									"variable": [
+										{
+											"key": "versionId",
+											"value": "f4ebd7d2-a9b3-46f3-bcf9-01ac999476c4"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 09:16:08 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Execute Latest Version",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "// For excel Based\n// {\n//     \"policy_premium\": 100\n//   }\n\n\n// For Code Based\n{\n    \"num1\": 10,\n    \"num2\": 20\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId/latest/execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"latest",
+								"execute"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Execute Latest Version",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"policy_premium\": 100\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/latest/execute",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"latest",
+										"execute"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-j02ABmx109RNgW9hn3/17UFlTUU\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 19:10:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"version\": \"1.0.0\",\n    \"results\": {\n        \"total_premium\": 286.925\n    }\n}"
+						},
+						{
+							"name": "Execute Latest Version",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "// {\n//     \"policy_premium\": 100\n//   }\n\n{\n    \"num1\": 10,\n    \"num2\": 20\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/latest/execute",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"latest",
+										"execute"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "54"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"36-cO9DR/9YwA7IifD8sK/Lqe0zQy4\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 20:38:37 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"version\": \"3.0.0\",\n    \"results\": {\n        \"sum\": 30,\n        \"product\": 200\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Execute specific version",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "// For excel Based\n// {\n//     \"policy_premium\": 100\n//   }\n\n\n// For Code Based\n{\n    \"num1\": 10,\n    \"num2\": 20\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/:categoryId/versions/:versionId/execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions",
+								":versionId",
+								"execute"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								},
+								{
+									"key": "versionId",
+									"value": "acfa2d7f-4a44-47b8-bbca-2694c75cfc93"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"policy_premium\": 100\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/versions/:versionId/execute",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"versions",
+										":versionId",
+										"execute"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										},
+										{
+											"key": "versionId",
+											"value": "be3ed138-dc73-4bcc-bbb5-570ff3e46f91"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-j02ABmx109RNgW9hn3/17UFlTUU\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 19:24:29 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"version\": \"1.0.0\",\n    \"results\": {\n        \"total_premium\": 286.925\n    }\n}"
+						},
+						{
+							"name": "Execute specific version",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "// {\n//     \"policy_premium\": 100\n//   }\n\n{\n    \"num1\": 10,\n    \"num2\": 20\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/categories/:categoryId/versions/:versionId/execute",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"categories",
+										":categoryId",
+										"versions",
+										":versionId",
+										"execute"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										},
+										{
+											"key": "versionId",
+											"value": "78c0d47a-9981-4f6f-833e-7350a1b37565"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-rqX8dyHumkcM06Lib/UnxGcSVuw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 04:13:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"version\": \"3.0.0\",\n    \"results\": {\n        \"sum\": 30,\n        \"product\": 4000\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Execute Rules by category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"policy_premium\": 100\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/execute/:categoryId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"execute",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"policy_premium\": 100\n  }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/execute/:categoryId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"execute",
+										":categoryId"
+									],
+									"variable": [
+										{
+											"key": "categoryId",
+											"value": "679bca33-df52-4798-b84e-2fe4d936b9db"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-j02ABmx109RNgW9hn3/17UFlTUU\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 06 May 2025 19:32:29 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"version\": \"1.0.0\",\n    \"results\": {\n        \"total_premium\": 286.925\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Version for all types",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Flow Versioj",
+			"item": [
+				{
+					"name": "Create flow version SAMPLE FORMAT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Complex Flow Version\",\n    \"description\": \"Flow version with multiple node types\",\n    \"inputColumns\": {\n      \"amount\": \"number\",\n      \"customer_type\": \"string\"\n    },\n    \"outputColumns\": {\n      \"discount\": \"number\",\n      \"final_amount\": \"number\"\n    },\n    \"variables\": {\n      \"base_discount\": {\n        \"type\": \"number\",\n        \"default\": 10\n      },\n      \"premium_multiplier\": {\n        \"type\": \"number\",\n        \"default\": 1.5\n      }\n    },\n    \"flow\": {\n      \"nodes\": [\n        {\n          \"id\": \"excel_inline\",\n          \"type\": \"excel\",\n          \"config\": {\n            \"mode\": \"inline\",\n            \"excel_file\": \"uploads/tax_calculator.xlsx\",\n            \"input_mapping\": {\n              \"amount\": \"IP_amount\"\n            },\n            \"output_mapping\": {\n              \"OP_final_amount\": \"final_amount\"\n            },\n            \"metadata\": {\n              \"name\": \"Discount Calculator\",\n              \"description\": \"Calculates base discount from amount and customer type\",\n              \"tags\": [\"discount\", \"calculation\"]\n            }\n          }\n        },\n        {\n          \"id\": \"excel_ref\",\n          \"type\": \"excel\",\n          \"config\": {\n            \"mode\": \"reference\",\n            \"version_id\": \"existing-excel-version-id\",\n            \"input_mapping\": {\n              \"amount\": \"IP_input_amount\",\n              \"discount\": \"IP_input_discount\"\n            },\n            \"output_mapping\": {\n              \"OP_final_amount\": \"final_amount\"\n            }\n          }\n        },\n        {\n          \"id\": \"code_inline\",\n          \"type\": \"code\",\n          \"config\": {\n            \"mode\": \"inline\",\n            \"code\": \"function calculate(inputs, variables) {\\n  const { amount } = inputs;\\n  const { base_discount, premium_multiplier } = variables;\\n  return {\\n    discount: base_discount * premium_multiplier,\\n    final_amount: amount - (amount * base_discount / 100)\\n  };\\n}\",\n            \"input_mapping\": {\n              \"amount\": \"amount\",\n              \"base_discount\": \"base_discount\"\n            },\n            \"output_mapping\": {\n              \"discount\": \"final_discount\",\n              \"final_amount\": \"calculated_amount\"\n            }\n          }\n        },\n        {\n          \"id\": \"code_ref\",\n          \"type\": \"code\",\n          \"config\": {\n            \"mode\": \"reference\",\n            \"version_id\": \"existing-code-version-id\",\n            \"input_mapping\": {\n              \"amount\": \"input_value\",\n              \"multiplier\": \"premium_multiplier\"\n            },\n            \"output_mapping\": {\n              \"result\": \"final_amount\"\n            }\n          }\n        }\n      ],\n      \"connections\": [\n        {\n          \"from\": {\n            \"node\": \"excel_inline\",\n            \"outputs\": {\n              \"base_discount\": \"discount_value\"\n            }\n          },\n          \"to\": {\n            \"node\": \"code_inline\",\n            \"inputs\": {\n              \"base_discount\": \"discount_value\"\n            }\n          }\n        },\n        {\n          \"from\": {\n            \"node\": \"code_inline\",\n            \"outputs\": {\n              \"final_amount\": \"amount\",\n              \"final_discount\": \"discount\"\n            }\n          },\n          \"to\": {\n            \"node\": \"excel_ref\",\n            \"inputs\": {\n              \"input_amount\": \"amount\",\n              \"input_discount\": \"discount\"\n            }\n          }\n        }\n      ]\n    }\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/categories/:categoryId/versions/flow",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions",
+								"flow"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "605019fc-6b7e-4fb2-8c23-3dc4b5475dab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version Flow example 1",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Complex Flow Version\",\n    \"description\": \"Flow version with multiple node types\",\n    \"type\": \"flow\",\n    \"version\": \"1.0.0\",\n    \"inputColumns\": {\n        \"policy_premium\": {\n            \"type\": \"number\"\n        }\n    },\n    \"outputColumns\": {\n        \"result\": {\n            \"type\": \"number\"\n        }\n    },\n    \"flow\": {\n        \"nodes\": [\n            {\n                \"id\": \"excel-1\",\n                \"type\": \"excel\",\n                \"config\": {\n                    \"mode\": \"inline\",\n                    \"excel_file\": \"example.xlsx\",\n                    \"input_mapping\": {\n                        \"IP_policy_premium\": \"$.flow.policy_premium\"\n                    },\n                    \"output_mapping\": {\n                        \"$.flow.result\": \"$.OP_result\"\n                    },\n                    \"metadata\": {\n                        \"name\": \"Premium Calculator\",\n                        \"description\": \"Calculates premium based on input\",\n                        \"tags\": [\n                            \"premium\",\n                            \"calculation\"\n                        ]\n                    }\n                }\n            }\n        ],\n        \"connections\": []\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/categories/:categoryId/versions/flow",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"categories",
+								":categoryId",
+								"versions",
+								"flow"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "8de3102f-b65d-4e1e-bfb0-38448f0d9c38"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

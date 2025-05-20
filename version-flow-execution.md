@@ -11,11 +11,11 @@ Version Flow Execution extends the Rules Manager's capabilities by introducing a
   "version": {
     "name": "loan-approval-flow",
     "description": "Loan approval decision flow",
-    "inputs": [
+    "inputColumns": [
       {"name": "income", "type": "number"},
       {"name": "credit_score", "type": "number"}
     ],
-    "outputs": [
+    "outputColumns": [
       {"name": "approval_status", "type": "string"},
       {"name": "loan_amount", "type": "number"}
     ],
@@ -39,11 +39,11 @@ Version Flow Execution extends the Rules Manager's capabilities by introducing a
   "version": {
     "name": "loan-approval-flow",
     "description": "Loan approval decision flow",
-    "inputs": [
+    "inputColumns": [
       {"name": "income", "type": "number"},
       {"name": "credit_score", "type": "number"}
     ],
-    "outputs": [
+    "outputColumns": [
       {"name": "approval_status", "type": "string"},
       {"name": "loan_amount", "type": "number"}
     ],
