@@ -26,12 +26,14 @@ const initializeApp = async () => {
     const { default: executionRoutes } = await import('./routes/executionRoutes');
     const { default: versionExecutionRoutes } = await import('./routes/versionExecutionRoutes');
     const { default: flowVersionRoutes } = await import('./routes/flowVersionRoutes');
+    const { default: nodeRoutes } = await import('./routes/nodeRoutes');
 
     app.use('/api/categories', categoryRoutes);
     app.use('/api/versions', versionRoutes);
     app.use('/api/execute', executionRoutes);
     app.use('/api', versionExecutionRoutes);
     app.use('/api/categories', flowVersionRoutes);
+    app.use('/api/nodes', nodeRoutes);
 
     // Start server
     app.listen(port, () => {

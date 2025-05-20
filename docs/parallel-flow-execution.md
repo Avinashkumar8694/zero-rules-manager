@@ -138,6 +138,24 @@ curl -X POST http://localhost:3000/api/execute/your-category-id \
 5. **Transforms**: Transform logic is applied to modify data before passing it to the target node using `handleTransform`.
 6. **Completion**: The flow execution completes when all nodes have been executed and results are synchronized.
 
+## Node Configuration API Examples
+
+### Get All Available Nodes
+Retrieve a list of all available nodes and their configurations:
+
+```sh
+curl -X GET http://localhost:3000/api/nodes \
+  -H "Content-Type: application/json"
+```
+
+### Get Specific Node Configuration
+Retrieve configuration for a specific node type:
+
+```sh
+curl -X GET http://localhost:3000/api/nodes/excel \
+  -H "Content-Type: application/json"
+```
+
 ## Complete cURL for Flow Version Creation
 
 ```sh

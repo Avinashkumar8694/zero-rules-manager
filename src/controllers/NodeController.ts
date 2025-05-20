@@ -30,26 +30,32 @@ interface NodeConfig {
     };
   };
   configForm: {
-    mode: {
+    mode?: {
       type: 'select';
       label: string;
       options: Array<{ label: string; value: string }>;
       default: string;
     };
-    fields: {
-      reference: Array<{
-        key: string;
-        type: string;
-        label: string;
-        required: boolean;
-      }>;
-      inline: Array<{
-        key: string;
-        type: string;
-        label: string;
-        required: boolean;
-      }>;
-    };
+    fields?: Array<{
+      key: string;
+      type: string;
+      label: string;
+      required: boolean;
+      mode?: string;
+      validation?: {
+        min?: number;
+        max?: number;
+        pattern?: string;
+        enum?: any[];
+      };
+      metadata?: {
+        description?: string;
+        placeholder?: string;
+        defaultValue?: any;
+        accept?:any,
+        language?:string,
+      };
+    }>
   };
 }
 
@@ -75,10 +81,7 @@ const nodeConfigs: Record<string, NodeConfig> = {
         options: [{ label: 'Inline', value: 'inline' }],
         default: 'inline'
       },
-      fields: {
-        reference: [],
-        inline: []
-      }
+      fields: []
     }
   },
   excel: {
@@ -112,24 +115,29 @@ const nodeConfigs: Record<string, NodeConfig> = {
         ],
         default: 'reference'
       },
-      fields: {
-        reference: [
-          {
-            key: 'version_id',
-            type: 'select',
-            label: 'Excel Version',
-            required: true
+      fields: [
+        {
+          key: 'version_id',
+          type: 'select',
+          label: 'Excel Version',
+          required: true,
+          mode: 'reference',
+          metadata: {
+            description: 'Select an existing Excel version to execute'
           }
-        ],
-        inline: [
-          {
-            key: 'excel_file',
-            type: 'file',
-            label: 'Excel File',
-            required: true
+        },
+        {
+          key: 'excel_file',
+          type: 'file',
+          label: 'Excel File',
+          required: true,
+          mode: 'inline',
+          metadata: {
+            description: 'Upload an Excel file with rules to execute',
+            accept: '.xlsx,.xls'
           }
-        ]
-      }
+        }
+      ]
     }
   },
   code: {
@@ -163,24 +171,30 @@ const nodeConfigs: Record<string, NodeConfig> = {
         ],
         default: 'reference'
       },
-      fields: {
-        reference: [
-          {
-            key: 'version_id',
-            type: 'select',
-            label: 'Code Version',
-            required: true
+      fields: [
+        {
+          key: 'version_id',
+          type: 'select',
+          label: 'Code Version',
+          required: true,
+          mode: 'reference',
+          metadata: {
+            description: 'Select an existing code version to execute'
           }
-        ],
-        inline: [
-          {
-            key: 'code',
-            type: 'code',
-            label: 'Code',
-            required: true
+        },
+        {
+          key: 'code',
+          type: 'code',
+          label: 'Code',
+          required: true,
+          mode: 'inline',
+          metadata: {
+            description: 'Write custom code to execute',
+            language: 'javascript',
+            placeholder: '// Write your code here'
           }
-        ]
-      }
+        }
+      ]
     }
   }
 };
