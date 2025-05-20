@@ -6,6 +6,8 @@ import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ExcelService } from '../services/ExcelService';
+import { BaseController } from './BaseController';
+import { ListQueryParams } from '../types/filter.types';
 
 const storage = multer.diskStorage({
   destination: './uploads/',
@@ -17,7 +19,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage }).single('file');
 
-export class CategoryController {
+export class CategoryController extends BaseController {
   private categoryRepository: any;
   private versionRepository: any;
   private excelService: ExcelService;
@@ -44,6 +46,7 @@ export class CategoryController {
 
   constructor() {
     // Initialize services
+    super();
     this.excelService = new ExcelService();
 
     // Bind methods to ensure correct 'this' context
@@ -92,9 +95,43 @@ export class CategoryController {
 
   async getAll(req: Request, res: Response) {
     try {
-      const categories = await this.categoryRepository.find();
-      return res.json(categories);
+      await this.ensureInitialized();
+      const queryBuilder = this.categoryRepository.createQueryBuilder('category');
+      
+      const params: ListQueryParams = {
+        limit: parseInt(req.query.limit as string) || 10,
+        offset: parseInt(req.query.offset as string) || 0,
+        filters: {},
+        order: req.query.order ? JSON.parse(req.query.order as string) : { createdAt: 'DESC' }
+      };
+
+      if (req.query.name) {
+        params.filters!.name = { like: req.query.name as string };
+      }
+
+      if (req.query.description) {
+        params.filters!.description = { like: req.query.description as string };
+      }
+
+      if (req.query.createdAfter) {
+        params.filters!.createdAt = { gte: new Date(req.query.createdAfter as string) };
+      }
+
+      if (req.query.createdBefore) {
+        params.filters!.createdAt = { 
+          ...params.filters!.createdAt,
+          lte: new Date(req.query.createdBefore as string)
+        };
+      }
+
+      const result = await this.executeListQuery(
+        this.buildListQuery(queryBuilder, params),
+        params
+      );
+
+      return res.json(result);
     } catch (error) {
+      console.error('Error fetching categories:', error);
       return res.status(500).json({ error: 'Failed to fetch categories' });
     }
   }
@@ -126,12 +163,49 @@ export class CategoryController {
         return res.status(404).json({ error: 'Category not found' });
       }
 
-      const versions = await this.versionRepository.find({
-        where: { categoryId: req.params.id },
-        order: { createdAt: 'DESC' }
-      });
+      const queryBuilder = this.versionRepository.createQueryBuilder('version')
+        .where('version.categoryId = :categoryId', { categoryId: req.params.id });
 
-      return res.json({ versions });
+      const params: ListQueryParams = {
+        limit: parseInt(req.query.limit as string) || 10,
+        offset: parseInt(req.query.offset as string) || 0,
+        filters: {},
+        order: req.query.order ? JSON.parse(req.query.order as string) : { createdAt: 'DESC' }
+      };
+
+      if (req.query.name) {
+        params.filters!.name = { like: req.query.name as string };
+      }
+
+      if (req.query.type) {
+        params.filters!.type = { eq: req.query.type as string };
+      }
+
+      if (req.query.isActive !== undefined) {
+        params.filters!.isActive = { eq: req.query.isActive === 'true' };
+      }
+
+      if (req.query.version) {
+        params.filters!.version = { like: req.query.version as string };
+      }
+
+      if (req.query.createdAfter) {
+        params.filters!.createdAt = { gte: new Date(req.query.createdAfter as string) };
+      }
+
+      if (req.query.createdBefore) {
+        params.filters!.createdAt = { 
+          ...params.filters!.createdAt,
+          lte: new Date(req.query.createdBefore as string)
+        };
+      }
+
+      const result = await this.executeListQuery(
+        this.buildListQuery(queryBuilder, params),
+        params
+      );
+
+      return res.json(result);
     } catch (error: any) {
       console.error('Version fetch error:', error);
       return res.status(500).json({

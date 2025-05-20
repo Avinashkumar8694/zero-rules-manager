@@ -6,7 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ExcelService } from '../services/ExcelService';
-
+import { BaseController } from './BaseController';
 const storage = multer.diskStorage({
   destination: './uploads/',
   filename: (req, file, cb) => {
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage }).single('file');
 
-export class VersionController {
+export class VersionController extends BaseController {
   private versionRepository: any;
   private excelService: ExcelService;
 
@@ -36,6 +36,7 @@ export class VersionController {
 
   constructor() {
     // Initialize services
+    super();
     this.excelService = new ExcelService();
 
     // Bind methods to ensure correct 'this' context

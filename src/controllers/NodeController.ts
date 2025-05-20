@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { BaseController } from './BaseController';
 
 interface NodeConfig {
   type: string;
@@ -199,7 +200,10 @@ const nodeConfigs: Record<string, NodeConfig> = {
   }
 };
 
-export class NodeController {
+export class NodeController extends BaseController {
+  constructor() {
+    super();
+  }
   public async getNodes(req: Request, res: Response) {
     try {
       const nodes = Object.values(nodeConfigs);
