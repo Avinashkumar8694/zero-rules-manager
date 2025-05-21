@@ -6,17 +6,48 @@ export class CodeExecutionService {
       // Validate inputs against version's inputColumns
       this.validateInputs(version, inputs);
 
-      // Create a safe execution context with only the required inputs
-      const context = { ...inputs };
+      // Create a safe execution context with flow variables
+      const flowContext = { ...inputs };
+      if ('variables' in version && version.variables) {
+        for (const [key, variable] of Object.entries(version.variables)) {
+          flowContext[key] = variable.default;
+        }
+      }
 
-      // Execute the code logic in a controlled environment
+      // Create proxy for flow variable access
+      const flowProxy = new Proxy(flowContext, {
+        get: (target, prop) => {
+          if (typeof prop === 'string') {
+            return target[prop as keyof typeof target];
+          }
+          return undefined;
+        },
+        set: (target, prop, value) => {
+          if (typeof prop === 'string') {
+            target[prop as keyof typeof target] = value;
+            return true;
+          }
+          return false;
+        }
+      });
+
+      const context = { $: { flow: flowProxy } };
       const results: Record<string, any> = {};
       
       // Handle both inline code and output columns
       if ('code' in version && version.code) {
         // For inline code execution
-        const calculateOutput = new Function(...Object.keys(inputs), version.code);
-        return { result: calculateOutput(...Object.values(inputs)) };
+        const calculateOutput = new Function('$', version.code);
+        const result = calculateOutput(context.$);
+        
+        // Extract flow variables if specified in outputColumns
+        if (version.outputColumns) {
+          for (const [key, output] of Object.entries(version.outputColumns)) {
+              results[key] = flowContext[key];
+          }
+        }
+        
+        return { ...results };
       } else if (version.outputColumns) {
         // For output columns with code
         for (const [key, output] of Object.entries(version.outputColumns)) {

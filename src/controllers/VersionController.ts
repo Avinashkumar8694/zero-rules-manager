@@ -70,12 +70,12 @@ export class VersionController extends BaseController {
       }
 
       // If enabling this version, disable all other versions in the same category
-      if (isActive) {
-        await this.versionRepository.update(
-          { categoryId: version.categoryId, id: Not(version.id) },
-          { isActive: false }
-        );
-      }
+      // if (isActive) {
+      //   await this.versionRepository.update(
+      //     { categoryId: version.categoryId, id: Not(version.id) },
+      //     { isActive: false }
+      //   );
+      // }
 
       version.isActive = isActive;
       await this.versionRepository.save(version);
