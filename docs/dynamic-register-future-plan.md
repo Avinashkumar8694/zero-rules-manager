@@ -1,5 +1,21 @@
 # Dynamic Component Registration in Angular
 
+## Architecture Categories
+
+**UI Application Layer**
+- Attribute window component
+- Dynamic widget loader directive
+- Form bindings and template rendering
+- Property editor interface
+- Interactive preview canvas
+
+**Node Infrastructure Layer**
+- Registry service implementation
+- Node configuration schemas
+- Lifecycle hooks system
+- Template management service
+- Security sanitization
+
 ## Implementation Strategy
 
 1. **Node Interface Definition**

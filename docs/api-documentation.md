@@ -6,13 +6,13 @@ The Rules Manager exposes a comprehensive RESTful API that enables programmatic 
 ## Base URL
 All API endpoints are relative to the base URL: `http://your-domain.com/api`
 
-## Authentication
+<!-- ## Authentication
 API requests must include a valid JWT token in the Authorization header:
 ```
 Authorization: Bearer <your-jwt-token>
 ```
 
-To obtain a token, use the authentication endpoints (refer to the Authentication API section).
+To obtain a token, use the authentication endpoints (refer to the Authentication API section). -->
 
 ## Categories API
 
