@@ -134,7 +134,7 @@ export class VersionController extends BaseController {
 
       // Handle code-based update
       if (req.body.inputColumns || req.body.outputColumns) {
-        const { inputColumns, outputColumns } = req.body;
+        const { inputColumns, outputColumns, code } = req.body;
 
         if (!inputColumns || !outputColumns || Object.keys(outputColumns).length === 0) {
           return res.status(400).json({ error: 'Input and output columns are required' });
@@ -142,7 +142,7 @@ export class VersionController extends BaseController {
 
         // Validate that each output column has code
         for (const [key, output] of Object.entries(outputColumns) as [string, { code?: string }][]) {
-          if (!output.code) {
+          if (!(output.code || code)) {
             return res.status(400).json({ error: `Output column ${key} is missing code implementation` });
           }
         }
@@ -150,6 +150,7 @@ export class VersionController extends BaseController {
         // Update version with new code parameters
         version.inputColumns = inputColumns;
         version.outputColumns = outputColumns;
+        version.code = code;
         version.updatedAt = new Date();
 
         await this.versionRepository.save(version);
