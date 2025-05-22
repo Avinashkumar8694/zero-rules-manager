@@ -28,6 +28,8 @@ export class RuleVersion {
 
   @Column({ type: 'varchar', nullable: true })
   filePath?: string;
+  @Column({ type: 'varchar', nullable: true })
+  code?: string;
 
   @Column({ type: 'jsonb', nullable: true })
   inputColumns?: Record<string, {

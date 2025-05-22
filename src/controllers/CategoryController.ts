@@ -316,7 +316,7 @@ export class CategoryController extends BaseController {
   async createCodeVersion(req: Request, res: Response) {
     try {
       await this.ensureInitialized();
-      const { inputColumns, outputColumns } = req.body;
+      const { inputColumns, outputColumns, code } = req.body;
 
       if (!inputColumns || !outputColumns || Object.keys(outputColumns).length === 0) {
         return res.status(400).json({ error: 'Input and output columns are required' });
@@ -324,7 +324,7 @@ export class CategoryController extends BaseController {
 
       // Validate that each output column has code
       for (const [key, output] of Object.entries(outputColumns) as [string, { code?: string }][]) {
-        if (!output.code) {
+        if (!(output.code || code)) {
           return res.status(400).json({ error: `Output column ${key} is missing code implementation` });
         }
       }
@@ -337,7 +337,8 @@ export class CategoryController extends BaseController {
         name: req.body.name,
         description: req.body.description,
         type: 'code',
-        isActive: false
+        isActive: false,
+        code
       });
 
       await this.versionRepository.save(version);
