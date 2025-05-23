@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import * as path from 'path';
+import * as fs from 'fs';
 import { BaseController } from './BaseController';
 
 interface NodeConfig {
@@ -204,6 +206,20 @@ export class NodeController extends BaseController {
   constructor() {
     super();
   }
+
+  private getNodeFilePath(nodeType: string, fileName: string): string {
+    return path.join(__dirname, '..', 'nodes', nodeType, fileName);
+  }
+
+  private getNodeMetadata(nodeType: string): any {
+    const metadataPath = this.getNodeFilePath(nodeType, 'metadata.json');
+    if (fs.existsSync(metadataPath)) {
+      const metadata = fs.readFileSync(metadataPath, 'utf-8');
+      return JSON.parse(metadata);
+    }
+    return null;
+  }
+
   public async getNodes(req: Request, res: Response) {
     try {
       const nodes = Object.values(nodeConfigs);
@@ -218,14 +234,39 @@ export class NodeController extends BaseController {
     try {
       const { type } = req.params;
       const config = nodeConfigs[type];
+      const metadata = this.getNodeMetadata(type);
 
       if (!config) {
         return res.status(404).json({ error: `Node type '${type}' not found` });
       }
 
-      return res.json(config);
+      return res.json({ ...config, ...metadata });
     } catch (error) {
       console.error('Error fetching node config:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  public async getNodeFile(req: Request, res: Response) {
+    try {
+      const { type, fileType } = req.params;
+      
+      // if (!nodeConfigs[type]) {
+      //   return res.status(404).json({ error: `Node type '${type}' not found` });
+      // }
+
+      const fileName = `${fileType}.${type}`;
+      const filePath = this.getNodeFilePath(fileType, fileName);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: `File '${fileName}' not found for node type '${type}'` });
+      }
+
+      const contentType = fileType === 'js' ? 'application/javascript' : 'text/html';
+      res.setHeader('Content-Type', contentType);
+      return res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error serving node file:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }

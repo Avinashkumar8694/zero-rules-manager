@@ -71,6 +71,7 @@ export class RuleVersion {
         width?: number;
         height?: number;
       };
+      nodeStyle?: 'circle' | 'rectangle'
       config: {
         mode: 'reference' | 'inline';
         version_id?: string;
