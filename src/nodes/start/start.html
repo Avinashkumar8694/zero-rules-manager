@@ -1,0 +1,56 @@
+<!-- FileIn.html -->
+<script type="text/html" data-template-name="start">
+    <!-- Name -->
+    <div class="editor-form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" class="node-input-property" style="width: 100%" />
+    </div>
+
+    <!-- File Path Selector -->
+    <div class="editor-form-row">
+        <label for="node-input-file-path">File</label>
+        <input type="file" id="node-input-file-path" style="width: 100%" />
+    </div>
+</script>
+
+<script type="text/javascript">
+registerNode({
+    type: 'start',
+    service: 'server',
+    appearance: {
+        color: 'green',
+        icon: 'https://img.icons8.com/?size=100&id=398&format=png&color=000000',
+        category: 'start',
+        nodeStyle: 'circle',
+        label: function () {
+            return this.name || 'Start';
+        }
+    },
+    io: {
+        inputs: 0,
+        outputs: 1
+    },
+    defaults: {
+        name: { value: '' },
+        filepath: { value: '', required: true }
+    },
+    hooks: {
+        onEdit: function (el, config) {
+            const node = this;
+            if (node.filepath) {
+                // Simulate file prefill (not possible directly due to browser security)
+                console.warn('Prefilling file input is not supported for security reasons.');
+            }
+        },
+        onSave: function (el, config) {
+            const node = this;
+            const fileInput = document.getElementById('node-input-file-path');
+            if (fileInput.files.length > 0) {
+                node.filepath = fileInput.files[0].name; // Store only file name or metadata
+            } else {
+                node.filepath = '';
+            }
+        }
+    }
+});
+</script>
